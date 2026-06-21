@@ -4,814 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Ocean AI — Apex Workspace</title>
-<style>
-/* ===================================================================
-   OCEAN AI — Apex Workspace
-   =================================================================== */
-
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
-:root {
-  --bg-color: #0a0e14;
-  --sidebar-bg: #0d1219;
-  --panel-bg: #161c27;
-  --panel-bg-2: #1b2230;
-  --text-primary: #e7ecf3;
-  --text-secondary: #8b96a8;
-  --text-tertiary: #5b6677;
-  --accent: #3b82f6;
-  --accent-2: #06b6d4;
-  --accent-rgb: 59, 130, 246;
-  --border-color: #232b3a;
-  --border-soft: #1a212e;
-  --msg-user-bg: linear-gradient(135deg, #2563eb, #1d4ed8);
-  --msg-bot-bg: #131923;
-  --danger: #f87171;
-  --success: #34d399;
-  --warning: #fbbf24;
-  --radius-lg: 18px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
-  --font-size-chat: 15px;
-  --shadow-soft: 0 8px 24px rgba(0,0,0,0.35);
-  --bg-image: none;
-  --bg-opacity: 0.92;
-}
-
-body.theme-light {
-  --bg-color: #f5f7fa;
-  --sidebar-bg: #ffffff;
-  --panel-bg: #f1f4f9;
-  --panel-bg-2: #e7ecf3;
-  --text-primary: #0f172a;
-  --text-secondary: #56657c;
-  --text-tertiary: #8896ab;
-  --border-color: #e2e8f0;
-  --border-soft: #edf1f6;
-  --msg-bot-bg: #ffffff;
-  --shadow-soft: 0 8px 24px rgba(15,23,42,0.08);
-}
-
-body.theme-dark-gray {
-  --bg-color: #17181a;
-  --sidebar-bg: #1c1d20;
-  --panel-bg: #232427;
-  --panel-bg-2: #2a2b2f;
-  --text-primary: #f0f0f0;
-  --text-secondary: #a0a0a5;
-  --text-tertiary: #6b6c70;
-  --border-color: #303134;
-  --border-soft: #28292c;
-  --msg-bot-bg: #1f2023;
-}
-
-body.theme-midnight {
-  --bg-color: #0c0a1f;
-  --sidebar-bg: #100d28;
-  --panel-bg: #181432;
-  --panel-bg-2: #1f1a3d;
-  --text-primary: #e9e6f7;
-  --text-secondary: #9590b8;
-  --text-tertiary: #645f88;
-  --border-color: #2a2552;
-  --border-soft: #1f1a40;
-  --msg-bot-bg: #15112e;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body {
-  font-family: 'Plus Jakarta Sans', 'Inter', 'Segoe UI', sans-serif;
-  height: 100%;
-}
-
-body {
-  background-color: var(--bg-color);
-  color: var(--text-primary);
-  overflow: hidden;
-  position: relative;
-  transition: background-color 0.25s ease, color 0.25s ease;
-}
-
-::selection { background: rgba(var(--accent-rgb), 0.35); }
-
-/* Scrollbars */
-* { scrollbar-width: thin; scrollbar-color: var(--border-color) transparent; }
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 8px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
-::-webkit-scrollbar-track { background: transparent; }
-
-.bg-overlay {
-  position: fixed; inset: 0;
-  background-image: var(--bg-image);
-  background-size: cover; background-position: center;
-  z-index: 0; pointer-events: none;
-}
-.bg-overlay::after {
-  content: ''; position: absolute; inset: 0;
-  background: var(--bg-color);
-  opacity: var(--bg-opacity);
-}
-
-.app {
-  display: flex; width: 100%; height: 100vh;
-  position: relative; z-index: 1;
-}
-
-/* =================== SIDEBAR =================== */
-.sidebar {
-  width: 272px; min-width: 272px;
-  background-color: var(--sidebar-bg);
-  border-right: 1px solid var(--border-color);
-  display: flex; flex-direction: column;
-  transition: margin-left 0.28s cubic-bezier(.4,0,.2,1), opacity 0.2s ease;
-  position: relative; z-index: 20;
-}
-.sidebar.collapsed { margin-left: -272px; opacity: 0; pointer-events: none; }
-
-.brand-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 18px 16px 14px;
-}
-.brand-mark {
-  font-size: 17px; font-weight: 800; letter-spacing: 0.5px; color: var(--text-primary);
-}
-.brand-accent {
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-}
-.sidebar-collapse, .sidebar-expand {
-  background: transparent; border: none; color: var(--text-secondary); cursor: pointer;
-  width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
-  transition: 0.15s;
-}
-.sidebar-collapse:hover, .sidebar-expand:hover { background: var(--panel-bg); color: var(--text-primary); }
-.sidebar-expand {
-  position: fixed; top: 16px; left: 12px; z-index: 25;
-  display: none; background: var(--panel-bg); border: 1px solid var(--border-color);
-}
-.sidebar-expand.visible { display: flex; }
-
-.new-chat-btn {
-  margin: 4px 16px 14px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  color: #fff; border: none; border-radius: var(--radius-md);
-  padding: 11px 14px; font-weight: 700; font-size: 14px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  box-shadow: 0 4px 14px rgba(var(--accent-rgb), 0.3);
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-.new-chat-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(var(--accent-rgb), 0.4); }
-.new-chat-btn:active { transform: translateY(0); }
-
-.sidebar-search {
-  margin: 0 16px 12px; display: flex; align-items: center; gap: 8px;
-  background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: var(--radius-sm);
-  padding: 8px 10px; color: var(--text-tertiary);
-}
-.sidebar-search input {
-  background: transparent; border: none; outline: none; color: var(--text-primary);
-  font-size: 13px; width: 100%; font-family: inherit;
-}
-.sidebar-search input::placeholder { color: var(--text-tertiary); }
-
-.nav-menu { padding: 0 12px; display: flex; flex-direction: column; gap: 2px; margin-bottom: 8px; }
-.nav-item {
-  padding: 9px 12px; border-radius: var(--radius-sm); cursor: pointer;
-  display: flex; align-items: center; gap: 10px;
-  color: var(--text-secondary); font-weight: 500; font-size: 13.5px;
-  transition: 0.15s; white-space: nowrap;
-}
-.nav-item svg { flex-shrink: 0; opacity: 0.85; }
-.nav-item:hover { background-color: var(--panel-bg); color: var(--text-primary); }
-.nav-item.active { background-color: var(--panel-bg-2); color: var(--text-primary); }
-
-.section-title {
-  font-size: 10.5px; text-transform: uppercase; color: var(--text-tertiary);
-  margin: 10px 16px 6px; letter-spacing: 0.8px; font-weight: 700;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.text-mini-btn {
-  background: none; border: none; color: var(--text-tertiary); cursor: pointer;
-  font-size: 10px; text-transform: none; letter-spacing: 0; font-weight: 600;
-  padding: 2px 4px; border-radius: 4px;
-}
-.text-mini-btn:hover { color: var(--danger); background: rgba(248,113,113,0.1); }
-
-.pinned-list { padding: 0 12px; display: flex; flex-direction: column; gap: 2px; max-height: 110px; overflow-y: auto; }
-.history-list {
-  flex-grow: 1; overflow-y: auto; padding: 0 12px; display: flex; flex-direction: column; gap: 2px;
-  min-height: 60px;
-}
-.history-group-label {
-  font-size: 10.5px; color: var(--text-tertiary); font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.6px; padding: 10px 6px 4px;
-}
-
-.history-item {
-  position: relative; padding: 9px 12px; border-radius: var(--radius-sm); cursor: pointer;
-  display: flex; align-items: center; gap: 8px; color: var(--text-secondary);
-  font-size: 13.5px; transition: 0.15s; overflow: hidden;
-}
-.history-item:hover { background: var(--panel-bg); color: var(--text-primary); }
-.history-item.active { background: var(--panel-bg-2); color: var(--text-primary); }
-.history-item .hist-icon { flex-shrink: 0; opacity: 0.6; }
-.history-item .hist-title {
-  flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.history-item .hist-actions {
-  display: none; gap: 2px; flex-shrink: 0;
-}
-.history-item:hover .hist-actions { display: flex; }
-.hist-action-btn {
-  background: none; border: none; color: var(--text-tertiary); cursor: pointer;
-  width: 22px; height: 22px; border-radius: 5px; display: flex; align-items: center; justify-content: center;
-}
-.hist-action-btn:hover { background: var(--border-color); color: var(--text-primary); }
-.hist-action-btn.danger:hover { color: var(--danger); }
-.history-item input.rename-input {
-  background: var(--bg-color); border: 1px solid var(--accent); border-radius: 5px;
-  color: var(--text-primary); font-size: 13px; padding: 3px 6px; width: 100%; outline: none;
-}
-
-.sidebar-footer {
-  padding: 12px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 4px;
-}
-.usage-pill { padding: 8px 10px 10px; }
-.usage-bar { height: 5px; background: var(--panel-bg); border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
-.usage-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); width: 24%; border-radius: 4px; }
-#usageLabel { font-size: 11px; color: var(--text-tertiary); }
-
-.profile-row {
-  display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-sm);
-  cursor: pointer; transition: 0.15s; margin-top: 2px;
-}
-.profile-row:hover { background: var(--panel-bg); }
-.avatar {
-  width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #8b5cf6);
-  display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #fff;
-  flex-shrink: 0;
-}
-.profile-meta { flex: 1; overflow: hidden; }
-.profile-name { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.profile-plan { font-size: 11px; color: var(--text-tertiary); }
-
-/* =================== MAIN WORKSPACE =================== */
-.main-workspace { flex-grow: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }
-
-.top-bar {
-  height: 60px; min-height: 60px; border-bottom: 1px solid var(--border-color);
-  display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
-  backdrop-filter: blur(6px);
-}
-.top-bar-left, .top-bar-right { display: flex; align-items: center; gap: 8px; }
-.mobile-only { display: none; }
-
-.icon-btn {
-  background: transparent; border: none; color: var(--text-secondary); cursor: pointer;
-  width: 34px; height: 34px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;
-  transition: 0.15s;
-}
-.icon-btn:hover { background: var(--panel-bg); color: var(--text-primary); }
-
-.model-selector { position: relative; }
-.model-trigger {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--panel-bg); border: 1px solid var(--border-color); color: var(--text-primary);
-  padding: 7px 12px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 13px;
-  transition: 0.15s;
-}
-.model-trigger:hover { border-color: var(--accent); }
-.model-dot {
-  width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0;
-  box-shadow: 0 0 8px rgba(var(--accent-rgb),0.6);
-}
-.model-dot.flash { background: var(--warning); box-shadow: 0 0 8px rgba(251,191,36,0.6); }
-.model-dot.think { background: #8b5cf6; box-shadow: 0 0 8px rgba(139,92,246,0.6); }
-.model-dot.code { background: var(--success); box-shadow: 0 0 8px rgba(52,211,153,0.6); }
-
-.model-dropdown {
-  display: none; position: absolute; top: calc(100% + 8px); left: 0; width: 260px;
-  background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md);
-  box-shadow: var(--shadow-soft); padding: 6px; z-index: 50;
-}
-.model-dropdown.open { display: block; animation: dropIn 0.15s ease; }
-@keyframes dropIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
-.model-option {
-  display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius-sm);
-  cursor: pointer; transition: 0.15s;
-}
-.model-option:hover { background: var(--panel-bg-2); }
-.model-option.active { background: rgba(var(--accent-rgb), 0.12); }
-.model-option .model-dot { margin-top: 4px; }
-.model-name { font-size: 13px; font-weight: 700; color: var(--text-primary); }
-.model-desc { font-size: 11.5px; color: var(--text-tertiary); }
-
-.chat-title {
-  font-size: 13.5px; color: var(--text-secondary); font-weight: 500;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px;
-  border-left: 1px solid var(--border-color); padding-left: 14px; margin-left: 4px;
-}
-
-/* =================== CUSTOM FILE DROPZONE =================== */
-.chat-dropzone-overlay {
-  position: absolute; inset: 12px;
-  background: rgba(var(--bg-color), 0.85); backdrop-filter: blur(8px);
-  border: 3px dashed var(--accent); border-radius: var(--radius-lg);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;
-  z-index: 1000; opacity: 0; pointer-events: none; transition: all 0.25s ease;
-  color: var(--accent);
-}
-.chat-dropzone-overlay.active {
-  opacity: 1; pointer-events: all; transform: scale(1);
-}
-.chat-dropzone-overlay .dz-icon {
-  width: 70px; height: 70px; background: rgba(var(--accent-rgb), 0.15);
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  animation: float 2s ease-in-out infinite;
-}
-.chat-dropzone-overlay .dz-text { font-size: 24px; font-weight: 800; }
-.chat-dropzone-overlay .dz-sub { font-size: 14px; color: var(--text-secondary); }
-@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-/* =================== CHAT AREA =================== */
-.chat-container {
-  flex-grow: 1; padding: 28px 12% 16px; overflow-y: auto;
-  display: flex; flex-direction: column; gap: 22px; scroll-behavior: smooth;
-}
-
-.welcome-screen {
-  flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-align: center; gap: 18px; padding: 40px 20px;
-}
-.welcome-logo {
-  width: 56px; height: 56px; border-radius: 16px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 8px 28px rgba(var(--accent-rgb), 0.35);
-  position: relative; overflow: hidden;
-}
-.welcome-logo::after {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%);
-  animation: shimmer 2.6s infinite;
-}
-@keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-.welcome-logo svg { position: relative; z-index: 1; }
-.welcome-title { font-size: 26px; font-weight: 800; color: var(--text-primary); }
-.welcome-sub { font-size: 14.5px; color: var(--text-secondary); max-width: 440px; }
-
-.suggestion-grid {
-  display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 8px;
-  max-width: 620px; width: 100%;
-}
-.suggestion-card {
-  text-align: left; background: var(--panel-bg); border: 1px solid var(--border-color);
-  border-radius: var(--radius-md); padding: 13px 15px; cursor: pointer; transition: 0.18s;
-}
-.suggestion-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-soft); }
-.suggestion-card .s-title { font-size: 13.5px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
-.suggestion-card .s-sub { font-size: 12px; color: var(--text-tertiary); }
-
-/* Message row */
-.message-row { display: flex; gap: 14px; max-width: 100%; animation: fadeInUp 0.35s cubic-bezier(.16,1,.3,1) forwards; opacity: 0; }
-.message-row.user-row { flex-direction: row-reverse; }
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-
-.msg-avatar {
-  width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 700; margin-top: 2px;
-}
-.msg-avatar.bot { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; }
-.msg-avatar.user { background: var(--panel-bg-2); color: var(--text-primary); border: 1px solid var(--border-color); }
-
-.message-col { display: flex; flex-direction: column; gap: 6px; max-width: 76%; min-width: 0; }
-.user-row .message-col { align-items: flex-end; }
-
-.message {
-  padding: 13px 17px; border-radius: var(--radius-lg); line-height: 1.65;
-  font-size: var(--font-size-chat); box-shadow: var(--shadow-soft); word-wrap: break-word;
-}
-.msg-user { background: var(--msg-user-bg); color: #fff; border-bottom-right-radius: 4px; }
-.msg-bot { background: var(--msg-bot-bg); border: 1px solid var(--border-soft); border-bottom-left-radius: 4px; color: var(--text-primary); }
-.message.compact { padding: 9px 13px; }
-
-.message p { margin: 0 0 10px; }
-.message p:last-child { margin-bottom: 0; }
-.message ul, .message ol { margin: 8px 0 8px 22px; }
-.message li { margin-bottom: 4px; }
-.message a { color: var(--accent-2); text-decoration: underline; }
-.message h1, .message h2, .message h3 { margin: 14px 0 8px; font-weight: 700; line-height: 1.3; }
-.message h1 { font-size: 1.3em; } .message h2 { font-size: 1.16em; } .message h3 { font-size: 1.05em; }
-.message blockquote {
-  border-left: 3px solid var(--accent); padding: 4px 14px; margin: 10px 0; color: var(--text-secondary);
-  background: rgba(var(--accent-rgb), 0.06); border-radius: 0 6px 6px 0;
-}
-.message table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.92em; }
-.message th, .message td { border: 1px solid var(--border-color); padding: 7px 10px; text-align: left; }
-.message th { background: var(--panel-bg-2); font-weight: 700; }
-.message code:not(pre code) {
-  background: rgba(var(--accent-rgb), 0.12); color: var(--accent-2); padding: 2px 6px; border-radius: 5px;
-  font-family: 'JetBrains Mono', monospace; font-size: 0.88em;
-}
-
-.code-block-wrap { margin: 12px 0; border-radius: 10px; overflow: hidden; border: 1px solid #2a3244; }
-.code-block-header {
-  display: flex; justify-content: space-between; align-items: center;
-  background: #0d1117; padding: 7px 13px; font-size: 11.5px; color: #8b96a8;
-  font-family: 'JetBrains Mono', monospace; border-bottom: 1px solid #1f2630;
-}
-.copy-code-btn {
-  background: none; border: none; color: #8b96a8; cursor: pointer; font-size: 11.5px;
-  display: flex; align-items: center; gap: 5px; padding: 3px 7px; border-radius: 5px; transition: 0.15s;
-  font-family: inherit;
-}
-.copy-code-btn:hover { background: rgba(255,255,255,0.08); color: #e6edf3; }
-.message pre { background: #0d1117; padding: 15px; overflow-x: auto; margin: 0; }
-.message pre code { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; color: #e6edf3; line-height: 1.55; background: none; padding: 0; }
-
-.think-block {
-  background: rgba(var(--accent-rgb), 0.06); border: 1px solid rgba(var(--accent-rgb), 0.18);
-  border-radius: 10px; margin-bottom: 10px; overflow: hidden;
-}
-.think-header {
-  display: flex; align-items: center; gap: 7px; padding: 9px 13px; cursor: pointer;
-  font-size: 12px; font-weight: 600; color: var(--accent-2); user-select: none;
-}
-.think-header svg { transition: transform 0.2s; }
-.think-block.collapsed .think-header svg { transform: rotate(-90deg); }
-.think-body {
-  padding: 0 13px 12px; font-size: 12.5px; color: var(--text-secondary); font-style: italic; line-height: 1.6;
-}
-.think-block.collapsed .think-body { display: none; }
-
-.web-sources {
-  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; padding-top: 10px;
-  border-top: 1px solid var(--border-soft);
-}
-.web-source-chip {
-  display: flex; align-items: center; gap: 5px; background: var(--panel-bg-2); border: 1px solid var(--border-color);
-  padding: 4px 9px; border-radius: 999px; font-size: 11px; color: var(--text-secondary); text-decoration: none;
-}
-.web-source-chip:hover { border-color: var(--accent); color: var(--text-primary); }
-
-.attached-image-bubble { max-width: 240px; border-radius: 12px; margin-bottom: 8px; display: block; border: 1px solid var(--border-color); }
-.attached-file-chip {
-  display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.08); border-radius: 10px;
-  padding: 8px 12px; margin-bottom: 8px; font-size: 12.5px;
-}
-.msg-user .attached-file-chip { background: rgba(255,255,255,0.15); }
-
-/* Message actions (hover toolbar) */
-.message-actions {
-  display: flex; gap: 2px; opacity: 0; transition: opacity 0.15s; height: 26px;
-}
-.message-row:hover .message-actions, .message-row.show-actions .message-actions { opacity: 1; }
-.msg-action-btn {
-  background: transparent; border: none; color: var(--text-tertiary); cursor: pointer;
-  width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center;
-  transition: 0.15s;
-}
-.msg-action-btn:hover { background: var(--panel-bg); color: var(--text-primary); }
-.msg-action-btn.liked { color: var(--success); }
-.msg-action-btn.disliked { color: var(--danger); }
-.msg-meta-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-tertiary); }
-.model-tag {
-  background: var(--panel-bg); border: 1px solid var(--border-color); padding: 1px 7px; border-radius: 999px; font-weight: 600;
-}
-
-.edit-textarea {
-  width: 100%; background: var(--panel-bg-2); border: 1px solid var(--accent); border-radius: var(--radius-md);
-  color: var(--text-primary); padding: 12px; font-size: var(--font-size-chat); font-family: inherit;
-  resize: vertical; outline: none; min-height: 60px;
-}
-.edit-actions { display: flex; gap: 8px; margin-top: 8px; justify-content: flex-end; }
-.edit-actions button {
-  padding: 6px 14px; border-radius: 7px; font-size: 12.5px; font-weight: 600; cursor: pointer; border: none;
-}
-.edit-cancel { background: var(--panel-bg); color: var(--text-secondary); }
-.edit-save { background: var(--accent); color: #fff; }
-
-/* Typing indicator */
-.typing-indicator { display: flex; gap: 5px; padding: 6px 2px; }
-.typing-indicator span { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; animation: bounce 1.3s infinite ease-in-out both; opacity: 0.7; }
-.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
-.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
-@keyframes bounce { 0%, 80%, 100% { transform: scale(0.4); } 40% { transform: scale(1); } }
-
-.stream-cursor { display: inline-block; width: 8px; height: 16px; background: var(--accent); margin-left: 2px; vertical-align: middle; animation: blink 0.9s infinite; border-radius: 2px; }
-@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
-.scroll-bottom-btn {
-  position: absolute; bottom: 168px; left: 50%; transform: translateX(-50%);
-  width: 36px; height: 36px; border-radius: 50%; background: var(--panel-bg); border: 1px solid var(--border-color);
-  display: none; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary);
-  box-shadow: var(--shadow-soft); z-index: 15; transition: 0.15s;
-}
-.scroll-bottom-btn.visible { display: flex; }
-.scroll-bottom-btn:hover { color: var(--accent); border-color: var(--accent); }
-
-/* =================== INPUT AREA =================== */
-.input-wrapper { padding: 10px 12% 16px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.input-shell {
-  width: 100%; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg);
-  padding: 10px 12px; box-shadow: var(--shadow-soft); transition: border-color 0.15s;
-}
-.input-shell:focus-within { border-color: var(--accent); }
-
-.attach-preview-area { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
-.attach-item { position: relative; }
-.attach-img-thumb { width: 64px; height: 64px; object-fit: cover; border-radius: 9px; border: 1px solid var(--border-color); }
-.attach-file-thumb {
-  display: flex; align-items: center; gap: 8px; background: var(--panel-bg-2); border: 1px solid var(--border-color);
-  border-radius: 9px; padding: 8px 12px; font-size: 12px; max-width: 180px;
-}
-.attach-file-thumb .file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.attach-file-thumb .file-size { color: var(--text-tertiary); font-size: 10.5px; flex-shrink: 0; }
-.attach-remove {
-  position: absolute; top: -7px; right: -7px; background: var(--danger); color: #fff; border: none;
-  border-radius: 50%; width: 18px; height: 18px; cursor: pointer; font-size: 11px; line-height: 1;
-  display: flex; align-items: center; justify-content: center;
-}
-
-.quick-suggest-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
-.quick-chip {
-  white-space: nowrap; background: var(--panel-bg-2); border: 1px solid var(--border-color); color: var(--text-secondary);
-  padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; transition: 0.15s;
-}
-.quick-chip:hover { border-color: var(--accent); color: var(--text-primary); }
-
-.input-row { display: flex; gap: 8px; align-items: flex-end; }
-.tool-icon-btn {
-  background: transparent; border: none; color: var(--text-secondary); cursor: pointer;
-  width: 34px; height: 34px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; transition: 0.15s;
-}
-.tool-icon-btn:hover { background: var(--panel-bg-2); color: var(--text-primary); }
-.tool-icon-btn.recording { color: var(--danger); animation: pulse-rec 1.2s infinite; }
-@keyframes pulse-rec { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-#userInput {
-  flex-grow: 1; background: transparent; border: none; color: var(--text-primary); outline: none;
-  font-size: 15px; resize: none; min-height: 26px; max-height: 200px; padding: 7px 4px; font-family: inherit; line-height: 1.5;
-}
-#userInput::placeholder { color: var(--text-tertiary); }
-
-.input-row-actions { display: flex; align-items: center; gap: 4px; }
-.send-btn {
-  background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border: none;
-  width: 34px; height: 34px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-  transition: 0.15s; flex-shrink: 0;
-}
-.send-btn:hover { filter: brightness(1.1); transform: scale(1.04); }
-.send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-.send-btn.stop-mode { background: var(--danger); }
-
-.tools-bar { display: flex; gap: 8px; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-soft); }
-.tool-btn {
-  background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary);
-  padding: 5px 11px; border-radius: 999px; cursor: pointer; transition: 0.15s; display: flex; align-items: center; gap: 6px; font-size: 12px;
-  font-family: inherit; font-weight: 500;
-}
-.tool-btn:hover { border-color: var(--accent); color: var(--text-primary); }
-.tool-btn[data-active="true"] { background: rgba(var(--accent-rgb), 0.14); border-color: var(--accent); color: var(--accent-2); }
-.tools-spacer { flex: 1; }
-.char-counter { font-size: 11px; color: var(--text-tertiary); }
-
-.disclaimer { font-size: 11px; color: var(--text-tertiary); text-align: center; }
-
-/* =================== MODALS =================== */
-.modal {
-  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100;
-  justify-content: center; align-items: center; backdrop-filter: blur(6px); animation: fadeIn 0.15s ease;
-}
-.modal.open { display: flex; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-.modal-content {
-  background: var(--sidebar-bg); border-radius: 16px; width: 440px; max-width: 92vw;
-  border: 1px solid var(--border-color); box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-  max-height: 86vh; display: flex; flex-direction: column; animation: modalIn 0.2s cubic-bezier(.16,1,.3,1);
-}
-.modal-wide { width: 620px; }
-@keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-.modal-header {
-  font-size: 16px; font-weight: 700; padding: 18px 20px; border-bottom: 1px solid var(--border-color);
-  display: flex; justify-content: space-between; align-items: center;
-}
-.modal-body { padding: 20px; overflow-y: auto; }
-.modal-body-split { display: flex; padding: 0; gap: 0; flex: 1; min-height: 0; }
-
-.settings-tabs { width: 150px; flex-shrink: 0; padding: 14px 8px; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 2px; }
-.settings-tab { padding: 9px 12px; border-radius: 8px; font-size: 13px; color: var(--text-secondary); cursor: pointer; font-weight: 500; }
-.settings-tab:hover { background: var(--panel-bg); }
-.settings-tab.active { background: var(--panel-bg-2); color: var(--text-primary); font-weight: 700; }
-.settings-panels { flex: 1; padding: 20px; overflow-y: auto; }
-.settings-panel { display: none; flex-direction: column; gap: 18px; }
-.settings-panel.active { display: flex; }
-
-.setting-row label { display: block; margin-bottom: 8px; font-size: 12.5px; color: var(--text-secondary); font-weight: 600; }
-.setting-row select, .setting-row input[type="text"], .setting-row textarea {
-  width: 100%; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--border-color);
-  background: var(--bg-color); color: var(--text-primary); font-size: 13.5px; outline: none; font-family: inherit;
-}
-.setting-row select:focus, .setting-row input:focus, .setting-row textarea:focus { border-color: var(--accent); }
-.setting-row input[type="range"] { width: 100%; accent-color: var(--accent); }
-.setting-row textarea { resize: vertical; }
-.toggle-row { display: flex; align-items: center; justify-content: space-between; }
-.toggle-row label { margin: 0; }
-
-.swatch-row { display: flex; gap: 10px; }
-.swatch {
-  width: 56px; height: 40px; border-radius: 10px; border: 2px solid var(--border-color); cursor: pointer;
-  position: relative; transition: 0.15s;
-}
-.swatch span { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 10px; color: var(--text-tertiary); white-space: nowrap; }
-.swatch.active { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.2); }
-
-.accent-row { display: flex; gap: 10px; }
-.accent-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: 0.15s; }
-.accent-dot.active { border-color: var(--text-primary); transform: scale(1.15); }
-
-.switch { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; inset: 0; background: var(--border-color); transition: 0.2s; border-radius: 999px; }
-.slider::before { content: ''; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px; background: #fff; transition: 0.2s; border-radius: 50%; }
-.switch input:checked + .slider { background: var(--accent); }
-.switch input:checked + .slider::before { transform: translateX(18px); }
-
-.btn-secondary {
-  background: var(--panel-bg); border: 1px solid var(--border-color); color: var(--text-primary);
-  padding: 9px 16px; border-radius: 9px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.15s;
-}
-.btn-secondary:hover { border-color: var(--accent); }
-.btn-danger {
-  background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3); color: var(--danger);
-  padding: 9px 16px; border-radius: 9px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.15s;
-}
-.btn-danger:hover { background: rgba(248,113,113,0.22); }
-.storage-meta { font-size: 13px; color: var(--text-secondary); }
-
-.about-block { text-align: center; padding: 20px 10px; display: flex; flex-direction: column; gap: 6px; align-items: center; }
-.about-block p { font-size: 12.5px; color: var(--text-secondary); }
-.muted-text { color: var(--text-tertiary); font-size: 12.5px; line-height: 1.6; }
-.about-block code { background: var(--panel-bg); padding: 2px 6px; border-radius: 5px; font-family: 'JetBrains Mono', monospace; }
-
-.modal-btns { display: flex; gap: 10px; margin-top: 16px; }
-.btn-full { flex: 1; padding: 11px; border: none; border-radius: 9px; cursor: pointer; font-weight: 600; background: var(--panel-bg); color: var(--text-primary); font-size: 13px; transition: 0.15s; }
-.btn-full:hover { background: var(--panel-bg-2); }
-.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; }
-
-/* Expanded settings extras */
-.setting-value { font-weight: 500; color: var(--text-tertiary); font-size: 11.5px; text-transform: none; letter-spacing: 0; float: right; }
-.accent-dot.accent-custom { position: relative; overflow: hidden; background: conic-gradient(from 0deg, #ef4444, #f59e0b, #10b981, #3b82f6, #8b5cf6, #ef4444); display:flex; align-items:center; justify-content:center; }
-.accent-dot.accent-custom input[type="color"] { position: absolute; inset: -4px; opacity: 0; cursor: pointer; width: 36px; height: 36px; }
-.input-with-btn { display: flex; gap: 8px; }
-.input-with-btn input { flex: 1; }
-.input-with-btn .btn-secondary { white-space: nowrap; }
-.btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
-.connection-status { font-size: 12px; margin-left: 10px; color: var(--text-tertiary); }
-.connection-status.ok { color: var(--success); }
-.connection-status.fail { color: var(--danger); }
-
-.import-dropzone {
-  border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 22px 16px;
-  display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;
-  color: var(--text-secondary); cursor: pointer; transition: 0.15s; font-size: 12.5px;
-}
-.import-dropzone:hover, .import-dropzone.dragover { border-color: var(--accent); color: var(--text-primary); background: rgba(var(--accent-rgb),0.05); }
-.import-dropzone svg { color: var(--text-tertiary); }
-.import-preview { margin-top: 14px; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; }
-.import-preview-header { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
-.import-list { max-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; margin-bottom: 6px; }
-.import-list-item { display: flex; justify-content: space-between; gap: 10px; padding: 6px 8px; border-radius: 6px; background: var(--panel-bg); font-size: 12px; color: var(--text-secondary); }
-.import-list-item .il-badge { font-size: 10px; padding: 1px 6px; border-radius: 999px; background: var(--panel-bg-2); flex-shrink: 0; }
-.import-list-item .il-badge.new { color: var(--success); }
-.import-list-item .il-badge.dup { color: var(--warning); }
-.radio-row { display: flex; flex-direction: column; gap: 8px; }
-.radio-option { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); cursor: pointer; font-weight: 500; }
-.radio-option input { accent-color: var(--accent); width: 15px; height: 15px; }
-.import-progress { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
-.import-progress-bar { height: 6px; background: var(--panel-bg); border-radius: 4px; overflow: hidden; }
-.import-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width 0.2s; }
-#importProgressLabel { font-size: 11.5px; color: var(--text-tertiary); }
-
-.shortcut-row {
-  display: flex; align-items: center; justify-content: space-between; padding: 10px 4px;
-  border-bottom: 1px solid var(--border-soft); font-size: 13px; color: var(--text-secondary);
-}
-.shortcut-row:last-child { border-bottom: none; }
-.shortcut-row kbd {
-  background: var(--panel-bg-2); border: 1px solid var(--border-color); border-bottom-width: 2px;
-  border-radius: 5px; padding: 2px 7px; font-size: 11px; font-family: 'JetBrains Mono', monospace;
-  color: var(--text-primary); margin-left: 4px;
-}
-.about-stats { display: flex; gap: 18px; margin-top: 14px; }
-.about-stats .stat { text-align: center; }
-.about-stats .stat-num { font-size: 20px; font-weight: 800; color: var(--text-primary); }
-.about-stats .stat-label { font-size: 11px; color: var(--text-tertiary); }
-
-/* View overlays (Explore / Projects) */
-.view-overlay { display: none; flex-grow: 1; overflow-y: auto; }
-.view-overlay.active { display: block; }
-.view-scroll { max-width: 980px; margin: 0 auto; padding: 32px 5%; }
-.view-header h2 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
-.model-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 14px; margin-top: 20px; }
-.model-card {
-  background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md);
-  padding: 18px; cursor: pointer; transition: 0.18s; display: flex; flex-direction: column; gap: 8px;
-}
-.model-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-soft); }
-.model-card.active { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.08); }
-.model-card-top { display: flex; align-items: center; gap: 10px; }
-.model-card .model-name { font-size: 15px; }
-.model-card .model-desc { font-size: 12.5px; line-height: 1.5; }
-.model-card-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
-.model-card-tag { font-size: 10.5px; background: var(--panel-bg-2); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 999px; color: var(--text-tertiary); }
-
-.project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 14px; margin-top: 20px; }
-.project-card {
-  background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md);
-  padding: 16px; cursor: pointer; transition: 0.18s; position: relative;
-}
-.project-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-soft); }
-.project-color-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-.project-card .p-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
-.project-card .p-meta { font-size: 11.5px; color: var(--text-tertiary); }
-.project-delete { position: absolute; top: 10px; right: 10px; opacity: 0; transition: 0.15s; }
-.project-card:hover .project-delete { opacity: 1; }
-.empty-state-mini { text-align: center; padding: 40px 20px; color: var(--text-tertiary); font-size: 13px; }
-
-/* Scripting examples library */
-.lib-toolbar { display: flex; flex-direction: column; gap: 10px; margin: 18px 0 6px; }
-.lib-search {
-  display: flex; align-items: center; gap: 8px; background: var(--panel-bg); border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm); padding: 9px 12px; color: var(--text-tertiary); max-width: 360px;
-}
-.lib-search input { background: transparent; border: none; outline: none; color: var(--text-primary); font-size: 13px; width: 100%; font-family: inherit; }
-.lib-filters { display: flex; gap: 6px; flex-wrap: wrap; }
-.lib-filter-chip {
-  background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary);
-  padding: 5px 12px; border-radius: 999px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.15s;
-}
-.lib-filter-chip:hover { border-color: var(--accent); color: var(--text-primary); }
-.lib-filter-chip.active { background: rgba(var(--accent-rgb), 0.14); border-color: var(--accent); color: var(--accent-2); }
-
-.example-card { display: flex; flex-direction: column; gap: 0; padding: 0; overflow: hidden; }
-.example-card-img { width: 100%; height: 130px; object-fit: cover; background: var(--panel-bg-2); display: block; }
-.example-card-img-fallback {
-  width: 100%; height: 130px; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, var(--panel-bg-2), var(--panel-bg)); color: var(--text-tertiary);
-}
-.example-card-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; }
-.example-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.example-card .ec-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
-.example-card .ec-desc { font-size: 12px; color: var(--text-tertiary); line-height: 1.5; }
-.example-card .ec-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
-.ec-level { font-size: 10px; padding: 2px 8px; border-radius: 999px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
-.ec-level.beginner { background: rgba(52,211,153,0.14); color: var(--success); }
-.ec-level.intermediate { background: rgba(251,191,36,0.14); color: var(--warning); }
-.ec-level.advanced { background: rgba(248,113,113,0.14); color: var(--danger); }
-
-.script-detail-img { width: 100%; max-height: 220px; object-fit: cover; border-radius: 10px; margin-bottom: 14px; border: 1px solid var(--border-color); }
-.script-detail-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-.script-detail-desc { font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 14px; }
-.script-source-links { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-.source-link-chip {
-  display: flex; align-items: center; gap: 6px; background: var(--panel-bg-2); border: 1px solid var(--border-color);
-  padding: 6px 12px; border-radius: 999px; font-size: 12px; color: var(--text-secondary); text-decoration: none; transition: 0.15s;
-}
-.source-link-chip:hover { border-color: var(--accent); color: var(--text-primary); }
-
-.share-link-row { display: flex; gap: 8px; margin: 14px 0; }
-.share-link-row input { flex: 1; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-secondary); font-size: 12.5px; outline: none; }
-
-/* Toast */
-.toast {
-  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
-  background: var(--panel-bg-2); border: 1px solid var(--border-color); color: var(--text-primary);
-  padding: 11px 20px; border-radius: 999px; font-size: 13px; font-weight: 600; box-shadow: var(--shadow-soft);
-  z-index: 200; opacity: 0; pointer-events: none; transition: 0.25s ease; display: flex; align-items: center; gap: 8px;
-}
-.toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-/* =================== RESPONSIVE =================== */
-@media (max-width: 880px) {
-  .sidebar { position: fixed; top: 0; left: 0; height: 100%; box-shadow: 0 0 40px rgba(0,0,0,0.4); }
-  .sidebar.collapsed { margin-left: -272px; }
-  .sidebar:not(.collapsed) { margin-left: 0; }
-  .sidebar-expand { display: none !important; }
-  .mobile-only { display: flex !important; }
-  .chat-container { padding: 20px 5% 16px; }
-  .input-wrapper { padding: 8px 4% 14px; }
-  .message-col { max-width: 88%; }
-  .suggestion-grid { grid-template-columns: 1fr; }
-  .modal-wide { width: 92vw; }
-  .modal-body-split { flex-direction: column; }
-  .settings-tabs { flex-direction: row; width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); overflow-x: auto; }
-  .chat-title { display: none; }
-}
-
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -819,6 +12,9 @@ body {
 
 <div class="app" id="app">
 
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <!-- ============ SIDEBAR ============ -->
   <aside class="sidebar" id="sidebar">
     <div class="brand-row">
       <div class="brand">
@@ -831,54 +27,50 @@ body {
 
     <button class="new-chat-btn" id="newChatBtn">
       <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
-      New chat
+      <span data-i18n="newChat">New chat</span>
     </button>
 
     <div class="sidebar-search">
       <svg viewBox="0 0 24 24" width="15" height="15"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      <input type="text" id="searchInput" placeholder="Search chats...">
+      <input type="text" id="searchInput" placeholder="Search chats..." data-i18n-placeholder="searchChats">
     </div>
 
     <nav class="nav-menu">
       <div class="nav-item active" data-view="dashboard">
         <svg viewBox="0 0 24 24" width="16" height="16"><path d="M3 11l9-8 9 8M5 10v10h14V10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Dashboard
+        <span data-i18n="dashboard">Dashboard</span>
       </div>
       <div class="nav-item" data-view="explore">
         <svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/><path d="M16 8l-2.5 6.5L7 17l2.5-6.5L16 8z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>
-        Scripting examples
+        <span data-i18n="robloxExamples">Roblox Lua Examples</span>
       </div>
       <div class="nav-item" data-view="projects">
         <svg viewBox="0 0 24 24" width="16" height="16"><path d="M3 7l2-3h6l1.5 2H21v11a1 1 0 01-1 1H4a1 1 0 01-1-1V7z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></svg>
-        Projects
+        <span data-i18n="projects">Projects</span>
       </div>
     </nav>
 
     <div class="section-title">
-      <span>Pinned</span>
+      <span data-i18n="pinned">Pinned</span>
     </div>
     <div class="pinned-list" id="pinnedList"></div>
 
     <div class="section-title">
-      <span>History</span>
-      <button class="text-mini-btn" id="clearAllBtn" title="Clear all history">Clear</button>
+      <span data-i18n="history">History</span>
+      <button class="text-mini-btn" id="clearAllBtn" title="Clear all history" data-i18n="clear">Clear</button>
     </div>
     <div class="history-list" id="historyList"></div>
 
     <div class="sidebar-footer">
-      <div class="usage-pill" id="usagePill">
-        <svg viewBox="0 0 24 24" width="13" height="13"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span id="usageLabel">Unlimited messages</span>
-      </div>
       <div class="nav-item" id="settingsBtn">
         <svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/><path d="M19.4 13a7.97 7.97 0 000-2l2.1-1.6-2-3.4-2.5 1a8 8 0 00-1.7-1L14.9 3h-3.8l-.4 2.9a8 8 0 00-1.7 1l-2.5-1-2 3.4L6.6 11a8 8 0 000 2l-2.1 1.6 2 3.4 2.5-1a8 8 0 001.7 1l.4 2.9h3.8l.4-2.9a8 8 0 001.7-1l2.5 1 2-3.4L19.4 13z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>
-        Settings
+        <span data-i18n="settings">Settings</span>
       </div>
       <div class="profile-row" id="profileRow">
-        <div class="avatar">U</div>
+        <div class="avatar" id="userAvatar">U</div>
         <div class="profile-meta">
-          <div class="profile-name">Guest User</div>
-        <div class="profile-plan">Unlimited · Local</div>
+          <div class="profile-name" id="profileNameLabel">Guest User</div>
+          <div class="profile-plan" id="profilePlanLabel" data-i18n="localWorkspace">Local workspace</div>
         </div>
         <svg viewBox="0 0 24 24" width="14" height="14"><path d="M8 9l4-4 4 4M8 15l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
@@ -889,16 +81,8 @@ body {
     <svg viewBox="0 0 24 24" width="18" height="18"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </button>
 
+  <!-- ============ MAIN WORKSPACE ============ -->
   <main class="main-workspace">
-    
-    <div class="chat-dropzone-overlay" id="chatDropzone">
-      <div class="dz-icon">
-        <svg viewBox="0 0 24 24" width="36" height="36"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-      </div>
-      <div class="dz-text">Drop files here</div>
-      <div class="dz-sub">Attach images, code files, or documents to Ocean AI</div>
-    </div>
-
     <header class="top-bar">
       <div class="top-bar-left">
         <button class="icon-btn mobile-only" id="mobileSidebarBtn">
@@ -913,51 +97,66 @@ body {
           <div class="model-dropdown" id="modelDropdown">
             <div class="model-option" data-model="ocean-flash" data-desc="Fastest responses for everyday tasks">
               <span class="model-dot flash"></span>
-              <div><div class="model-name">Ocean Flash</div><div class="model-desc">Fast &amp; lightweight</div></div>
+              <div><div class="model-name">Ocean Flash</div><div class="model-desc" data-i18n="descFlash">Fast &amp; lightweight</div></div>
             </div>
             <div class="model-option active" data-model="ocean-pro" data-desc="Balanced reasoning and speed">
               <span class="model-dot"></span>
-              <div><div class="model-name">Ocean Pro</div><div class="model-desc">Balanced everyday model</div></div>
+              <div><div class="model-name">Ocean Pro</div><div class="model-desc" data-i18n="descPro">Balanced everyday model</div></div>
             </div>
             <div class="model-option" data-model="ocean-thinking" data-desc="Deep step-by-step reasoning">
               <span class="model-dot think"></span>
-              <div><div class="model-name">Ocean Thinking</div><div class="model-desc">Extended reasoning mode</div></div>
+              <div><div class="model-name">Ocean Thinking</div><div class="model-desc" data-i18n="descThinking">Extended reasoning mode</div></div>
             </div>
             <div class="model-option" data-model="ocean-code" data-desc="Specialized for programming tasks">
               <span class="model-dot code"></span>
-              <div><div class="model-name">Ocean Code</div><div class="model-desc">Tuned for engineering</div></div>
+              <div><div class="model-name">Ocean Code</div><div class="model-desc" data-i18n="descCode">Tuned for engineering</div></div>
             </div>
           </div>
         </div>
-        <div class="chat-title" id="chatTitle">New conversation</div>
+        <div class="chat-title" id="chatTitle" data-i18n="newConversation">New conversation</div>
       </div>
       <div class="top-bar-right">
-        <button class="icon-btn" id="shareBtn" title="Share chat">
+        <button class="icon-btn" id="shareBtn" title="Share chat" data-i18n-title="shareChat">
           <svg viewBox="0 0 24 24" width="18" height="18"><circle cx="18" cy="5" r="2.5" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="6" cy="12" r="2.5" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="18" cy="19" r="2.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M8.3 10.7l7.4-4.4M8.3 13.3l7.4 4.4" stroke="currentColor" stroke-width="1.8"/></svg>
         </button>
-        <button class="icon-btn" id="exportBtn" title="Export chat">
+        <button class="icon-btn" id="exportBtn" title="Export chat" data-i18n-title="exportChat">
           <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v3a1 1 0 001 1h14a1 1 0 001-1v-3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
-        <button class="icon-btn" id="themeToggleBtn" title="Toggle theme">
+        <button class="icon-btn" id="themeToggleBtn" title="Toggle theme" data-i18n-title="toggleTheme">
           <svg viewBox="0 0 24 24" width="18" height="18" id="themeIcon"><path d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.4 5.4 0 01-7.54-7.54A9 9 0 0012 3z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>
         </button>
+        <div class="notif-wrap">
+          <button class="icon-btn" id="notifBtn" title="Notifications" data-i18n-title="notifications">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.7 21a2 2 0 01-3.4 0" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
+            <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
+          </button>
+          <div class="notif-dropdown" id="notifDropdown">
+            <div class="notif-dropdown-header">
+              <span data-i18n="notifications">Notifications</span>
+              <button class="text-mini-btn" id="clearNotifsBtn" data-i18n="clearAll">Clear all</button>
+            </div>
+            <div class="notif-list" id="notifList"></div>
+          </div>
+        </div>
       </div>
     </header>
 
     <div class="chat-container" id="chatBox">
-      </div>
+      <!-- Welcome / empty state injected by JS -->
+    </div>
 
+    <!-- ============ ROBLOX LUA EXAMPLES VIEW ============ -->
     <div class="view-overlay" id="exploreView">
       <div class="view-scroll">
         <div class="view-header">
-          <h2>Scripting examples</h2>
-          <p class="muted-text">Reference patterns for Roblox Studio &amp; Luau — written for scripts you own, running inside Roblox's own engine. Click a card for the full code.</p>
+          <h2 data-i18n="robloxExamples">Roblox Lua Examples</h2>
+          <p class="muted-text" data-i18n="robloxExamplesDesc">A growing reference library of Roblox Studio &amp; Luau patterns — written for scripts you own, running inside Roblox's own engine. Click a card for the full code and a walkthrough of how it works.</p>
         </div>
 
         <div class="lib-toolbar">
           <div class="lib-search">
             <svg viewBox="0 0 24 24" width="14" height="14"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            <input type="text" id="libSearchInput" placeholder="Search examples...">
+            <input type="text" id="libSearchInput" placeholder="Search examples..." data-i18n-placeholder="searchExamples">
           </div>
           <div class="lib-filters" id="libFilters"></div>
         </div>
@@ -966,6 +165,7 @@ body {
       </div>
     </div>
 
+    <!-- ============ SCRIPT DETAIL MODAL ============ -->
     <div class="modal" id="scriptDetailModal">
       <div class="modal-content modal-wide">
         <div class="modal-header">
@@ -978,14 +178,15 @@ body {
       </div>
     </div>
 
+    <!-- ============ PROJECTS VIEW ============ -->
     <div class="view-overlay" id="projectsView">
       <div class="view-scroll">
         <div class="view-header">
-          <h2>Projects</h2>
-          <p class="muted-text">Group related conversations together with their own instructions.</p>
+          <h2 data-i18n="projects">Projects</h2>
+          <p class="muted-text" data-i18n="projectsDesc">Group related conversations together with their own instructions.</p>
           <button class="new-chat-btn" id="newProjectBtn" style="margin:14px 0 0; width:auto; padding:10px 18px;">
             <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
-            New project
+            <span data-i18n="newProject">New project</span>
           </button>
         </div>
         <div class="project-grid" id="projectGrid"></div>
@@ -1004,18 +205,18 @@ body {
         <div class="quick-suggest-row" id="quickSuggestRow"></div>
 
         <div class="input-row" id="inputRow">
-          <button class="tool-icon-btn" id="attachBtn" title="Attach file or image">
+          <button class="tool-icon-btn" id="attachBtn" title="Attach file or image" data-i18n-title="attachFile">
             <svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.5l-8.5 8.5a5 5 0 01-7-7l9-9a3.5 3.5 0 015 5l-9 9a2 2 0 01-3-3l8-8" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <input type="file" id="fileUpload" accept="image/*,.pdf,.txt,.csv,.json,.md,.docx" multiple style="display:none">
 
-          <textarea id="userInput" rows="1" placeholder="Message Ocean AI..."></textarea>
+          <textarea id="userInput" rows="1" placeholder="Message Ocean AI..." data-i18n-placeholder="messageInput"></textarea>
 
           <div class="input-row-actions">
-            <button class="tool-icon-btn" id="micBtn" title="Voice input">
+            <button class="tool-icon-btn" id="micBtn" title="Voice input" data-i18n-title="voiceInput">
               <svg viewBox="0 0 24 24" width="19" height="19"><path d="M12 15a3 3 0 003-3V6a3 3 0 00-6 0v6a3 3 0 003 3z" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M19 11a7 7 0 01-14 0M12 18v3" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
             </button>
-            <button class="send-btn" id="sendBtn" title="Send message">
+            <button class="send-btn" id="sendBtn" title="Send message" data-i18n-title="sendMessage">
               <svg viewBox="0 0 24 24" width="18" height="18"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
           </div>
@@ -1024,29 +225,30 @@ body {
         <div class="tools-bar">
           <button class="tool-btn" id="webSearchToggle" data-active="false">
             <svg viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
-            Web search
+            <span data-i18n="webSearch">Web search</span>
           </button>
           <button class="tool-btn" id="thinkToggle" data-active="false">
             <svg viewBox="0 0 24 24" width="14" height="14"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9c.4.3.5.8.5 1.3v.3h6v-.3c0-.5.1-1 .5-1.3A6 6 0 0012 3z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>
-            Extended thinking
+            <span data-i18n="extendedThinking">Extended thinking</span>
           </button>
           <button class="tool-btn" id="canvasToggle" data-active="false">
             <svg viewBox="0 0 24 24" width="14" height="14"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M3 9h18M9 9v12" stroke="currentColor" stroke-width="1.6"/></svg>
-            Canvas
+            <span data-i18n="canvas">Canvas</span>
           </button>
           <span class="tools-spacer"></span>
           <span class="char-counter" id="charCounter">0</span>
         </div>
       </div>
-      <div class="disclaimer">Ocean AI can make mistakes. Verify important information.</div>
+      <div class="disclaimer" data-i18n="disclaimer">Ocean AI can make mistakes. Verify important information.</div>
     </div>
   </main>
 </div>
 
+<!-- ============ SETTINGS MODAL ============ -->
 <div class="modal" id="settingsModal">
   <div class="modal-content modal-wide">
     <div class="modal-header">
-      <span>Settings</span>
+      <span data-i18n="settings">Settings</span>
       <button class="icon-btn" id="closeSettingsBtn">
         <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
@@ -1054,35 +256,47 @@ body {
 
     <div class="modal-body modal-body-split">
       <div class="settings-tabs">
-        <div class="settings-tab active" data-tab="appearance">Appearance</div>
-        <div class="settings-tab" data-tab="behavior">Behavior</div>
-        <div class="settings-tab" data-tab="models">Models &amp; API</div>
-        <div class="settings-tab" data-tab="privacy">Privacy</div>
-        <div class="settings-tab" data-tab="data">Data controls</div>
-        <div class="settings-tab" data-tab="shortcuts">Shortcuts</div>
-        <div class="settings-tab" data-tab="about">About</div>
+        <div class="settings-tab active" data-tab="appearance" data-i18n="tabAppearance">Appearance</div>
+        <div class="settings-tab" data-tab="behavior" data-i18n="tabBehavior">Behavior</div>
+        <div class="settings-tab" data-tab="models" data-i18n="tabModels">Models &amp; API</div>
+        <div class="settings-tab" data-tab="privacy" data-i18n="tabPrivacy">Privacy</div>
+        <div class="settings-tab" data-tab="data" data-i18n="tabData">Data controls</div>
+        <div class="settings-tab" data-tab="shortcuts" data-i18n="tabShortcuts">Shortcuts</div>
+        <div class="settings-tab" data-tab="about" data-i18n="tabAbout">About</div>
       </div>
 
       <div class="settings-panels">
 
         <div class="settings-panel active" data-panel="appearance">
           <div class="setting-row">
-            <label>Theme</label>
+            <label data-i18n="language">Language / Ngôn ngữ</label>
+            <div class="osel">
+            <select id="languageSelect">
+              <option value="en">English</option>
+              <option value="vi">Tiếng Việt (Vietnamese)</option>
+            </select>
+            <div class="osel-trigger"><span class="osel-label"></span><svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="osel-menu"></div>
+          </div>
+          </div>
+
+          <div class="setting-row">
+            <label data-i18n="theme">Theme</label>
             <div class="swatch-row" id="themeSwatches">
-              <button class="swatch" data-theme="dark" style="background:#0a0e14"><span>Dark</span></button>
-              <button class="swatch" data-theme="light" style="background:#f8fafc"><span>Light</span></button>
-              <button class="swatch" data-theme="dark-gray" style="background:#1a1a1a"><span>Charcoal</span></button>
-              <button class="swatch" data-theme="midnight" style="background:#0c0a1f"><span>Midnight</span></button>
+              <button class="swatch" data-theme="dark" style="background:#0a0e14"><span data-i18n="themeDark">Dark</span></button>
+              <button class="swatch" data-theme="light" style="background:#f8fafc"><span data-i18n="themeLight">Light</span></button>
+              <button class="swatch" data-theme="dark-gray" style="background:#1a1a1a"><span data-i18n="themeCharcoal">Charcoal</span></button>
+              <button class="swatch" data-theme="midnight" style="background:#0c0a1f"><span data-i18n="themeMidnight">Midnight</span></button>
             </div>
           </div>
 
           <div class="setting-row toggle-row">
-            <label>Match system theme</label>
+            <label data-i18n="matchSystemTheme">Match system theme</label>
             <label class="switch"><input type="checkbox" id="autoThemeToggle"><span class="slider"></span></label>
           </div>
 
           <div class="setting-row">
-            <label>Accent color</label>
+            <label data-i18n="accentColor">Accent color</label>
             <div class="accent-row" id="accentRow">
               <button class="accent-dot" data-accent="#3b82f6" style="background:#3b82f6"></button>
               <button class="accent-dot" data-accent="#06b6d4" style="background:#06b6d4"></button>
@@ -1097,191 +311,250 @@ body {
           </div>
 
           <div class="setting-row">
-            <label>Chat font size <span class="setting-value" id="fontSizeValue">15px</span></label>
+            <label data-i18n="fontSize">Chat font size <span class="setting-value" id="fontSizeValue">15px</span></label>
             <input type="range" id="fontSizeRange" min="13" max="19" step="1" value="15">
           </div>
 
           <div class="setting-row">
-            <label>Message corner radius <span class="setting-value" id="radiusValue">18px</span></label>
+            <label data-i18n="cornerRadius">Message corner radius <span class="setting-value" id="radiusValue">18px</span></label>
             <input type="range" id="radiusRange" min="4" max="28" step="2" value="18">
           </div>
 
           <div class="setting-row">
-            <label>Font family</label>
+            <label data-i18n="fontFamily">Font family</label>
+            <div class="osel">
             <select id="fontFamilySelect">
               <option value="'Plus Jakarta Sans', 'Inter', 'Segoe UI', sans-serif">Plus Jakarta Sans (default)</option>
               <option value="'Inter', 'Segoe UI', sans-serif">Inter</option>
               <option value="Georgia, 'Times New Roman', serif">Serif</option>
               <option value="'JetBrains Mono', 'Consolas', monospace">Monospace</option>
-              <option value="system-ui, -apple-system, sans-serif">System default</option>
+              <option value="system-ui, -apple-system, sans-serif" data-i18n="systemDefault">System default</option>
             </select>
+            <div class="osel-trigger"><span class="osel-label"></span><svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="osel-menu"></div>
+          </div>
           </div>
 
           <div class="setting-row">
-            <label>Background image URL</label>
+            <label data-i18n="backgroundPreset">Background preset</label>
+            <div class="osel">
+            <select id="bgPresetSelect">
+              <option value="" data-i18n="noneSolid">None (solid color)</option>
+              <option value="https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1600&q=60" data-i18n="deepOcean">Deep ocean</option>
+              <option value="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1600&q=60" data-i18n="nightSky">Night sky / stars</option>
+              <option value="https://images.unsplash.com/photo-1557683316-973673baf926?w=1600&q=60" data-i18n="abstractGradient">Abstract gradient</option>
+              <option value="https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=1600&q=60" data-i18n="mountains">Mountains</option>
+              <option value="custom" data-i18n="customUrl">Custom URL…</option>
+            </select>
+            <div class="osel-trigger"><span class="osel-label"></span><svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="osel-menu"></div>
+          </div>
+          </div>
+
+          <div class="setting-row" id="bgUrlRow">
+            <label data-i18n="backgroundUrl">Background image URL</label>
             <input type="text" id="bgUrl" placeholder="https://domain.com/image.png">
           </div>
 
           <div class="setting-row">
-            <label>Background overlay opacity <span class="setting-value" id="bgOpacityValue">92%</span></label>
+            <label data-i18n="bgOpacity">Background overlay opacity <span class="setting-value" id="bgOpacityValue">92%</span></label>
             <input type="range" id="bgOpacity" min="0" max="1" step="0.05" value="0.92">
           </div>
 
           <div class="setting-row toggle-row">
-            <label>Compact message bubbles</label>
+            <label data-i18n="compactBubbles">Compact message bubbles</label>
             <label class="switch"><input type="checkbox" id="compactToggle"><span class="slider"></span></label>
           </div>
 
           <div class="setting-row toggle-row">
-            <label>Reduce motion / animations</label>
+            <label data-i18n="reduceMotion">Reduce motion / animations</label>
             <label class="switch"><input type="checkbox" id="reduceMotionToggle"><span class="slider"></span></label>
           </div>
 
           <div class="setting-row toggle-row">
-            <label>Show avatars in chat</label>
+            <label data-i18n="showAvatars">Show avatars in chat</label>
             <label class="switch"><input type="checkbox" id="showAvatarsToggle" checked><span class="slider"></span></label>
           </div>
 
           <div class="setting-row">
-            <button class="btn-secondary" id="resetAppearanceBtn">Reset appearance to defaults</button>
+            <button class="btn-secondary" id="resetAppearanceBtn" data-i18n="resetAppearance">Reset appearance to defaults</button>
           </div>
         </div>
 
         <div class="settings-panel" data-panel="behavior">
           <div class="setting-row">
-            <label>Custom instructions</label>
-            <textarea id="customInstructions" rows="4" placeholder="Tell Ocean AI how to respond — tone, format, expertise level..."></textarea>
-          </div>
-          <div class="setting-row">
-            <label>Your nickname (used in greetings)</label>
-            <input type="text" id="nicknameInput" placeholder="What should Ocean AI call you?">
-          </div>
-          <div class="setting-row">
-            <label>Response tone</label>
-            <select id="toneSelect">
-              <option value="balanced">Balanced</option>
-              <option value="concise">Concise &amp; direct</option>
-              <option value="friendly">Friendly &amp; casual</option>
-              <option value="formal">Formal &amp; professional</option>
-              <option value="detailed">Detailed &amp; thorough</option>
+            <label data-i18n="instructionsPreset">Custom instructions preset</label>
+            <div class="osel">
+            <select id="instructionsPresetSelect">
+              <option value="" data-i18n="writeOwn">None — write your own</option>
+              <option value="Keep answers short and to the point. Avoid filler words." data-i18n="presetShort">Short &amp; direct</option>
+              <option value="Explain things step by step as if teaching a beginner." data-i18n="presetTeach">Teach me step-by-step</option>
+              <option value="Focus on Roblox Studio and Luau scripting. Include code examples when relevant." data-i18n="presetRoblox">Roblox scripting focus</option>
+              <option value="custom" data-i18n="customDots">Custom…</option>
             </select>
+            <div class="osel-trigger"><span class="osel-label"></span><svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="osel-menu"></div>
+          </div>
+          </div>
+          <div class="setting-row">
+            <label data-i18n="customInstructions">Custom instructions</label>
+            <textarea id="customInstructions" rows="4" placeholder="Tell Ocean AI how to respond — tone, format, expertise level..." data-i18n-placeholder="customInstructionsPlaceholder"></textarea>
+          </div>
+          <div class="setting-row">
+            <label data-i18n="nickname">Your nickname (used in greetings)</label>
+            <input type="text" id="nicknameInput" placeholder="What should Ocean AI call you?" data-i18n-placeholder="nicknamePlaceholder">
+          </div>
+          <div class="setting-row">
+            <label data-i18n="responseTone">Response tone</label>
+            <div class="osel">
+            <select id="toneSelect">
+              <option value="balanced" data-i18n="toneBalanced">Balanced</option>
+              <option value="concise" data-i18n="toneConcise">Concise &amp; direct</option>
+              <option value="friendly" data-i18n="toneFriendly">Friendly &amp; casual</option>
+              <option value="formal" data-i18n="toneFormal">Formal &amp; professional</option>
+              <option value="detailed" data-i18n="toneDetailed">Detailed &amp; thorough</option>
+            </select>
+            <div class="osel-trigger"><span class="osel-label"></span><svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="osel-menu"></div>
+          </div>
           </div>
           <div class="setting-row toggle-row">
-            <label>Send message with Enter</label>
+            <label data-i18n="enterToSend">Send message with Enter</label>
             <label class="switch"><input type="checkbox" id="enterToSendToggle" checked><span class="slider"></span></label>
           </div>
           <div class="setting-row toggle-row">
-            <label>Suggest follow-up prompts</label>
+            <label data-i18n="suggestFollowups">Suggest follow-up prompts</label>
             <label class="switch"><input type="checkbox" id="suggestToggle" checked><span class="slider"></span></label>
           </div>
           <div class="setting-row toggle-row">
-            <label>Stream responses</label>
+            <label data-i18n="streamResponses">Stream responses</label>
             <label class="switch"><input type="checkbox" id="streamToggle" checked><span class="slider"></span></label>
           </div>
           <div class="setting-row">
-            <label>Streaming speed <span class="setting-value" id="streamSpeedValue">Normal</span></label>
+            <label data-i18n="streamSpeed">Streaming speed <span class="setting-value" id="streamSpeedValue">Normal</span></label>
             <input type="range" id="streamSpeedRange" min="1" max="5" step="1" value="3">
           </div>
           <div class="setting-row toggle-row">
-            <label>Auto-rename chats from first message</label>
+            <label data-i18n="autoRename">Auto-rename chats from first message</label>
             <label class="switch"><input type="checkbox" id="autoRenameToggle" checked><span class="slider"></span></label>
           </div>
           <div class="setting-row toggle-row">
-            <label>Confirm before deleting a chat</label>
+            <label data-i18n="confirmDelete">Confirm before deleting a chat</label>
             <label class="switch"><input type="checkbox" id="confirmDeleteToggle" checked><span class="slider"></span></label>
           </div>
           <div class="setting-row toggle-row">
-            <label>Spell-check input box</label>
+            <label data-i18n="spellcheck">Spell-check input box</label>
             <label class="switch"><input type="checkbox" id="spellcheckToggle" checked><span class="slider"></span></label>
           </div>
         </div>
 
         <div class="settings-panel" data-panel="models">
           <div class="setting-row">
-            <label>Default model</label>
+            <label data-i18n="defaultModel">Default model</label>
+            <div class="osel">
             <select id="defaultModelSelect">
-              <option value="ocean-flash">Ocean Flash — fastest</option>
-              <option value="ocean-pro" selected>Ocean Pro — balanced</option>
-              <option value="ocean-thinking">Ocean Thinking — deep reasoning</option>
-              <option value="ocean-code">Ocean Code — engineering</option>
+              <option value="ocean-flash" data-i18n="defaultModelFlash">Ocean Flash — fastest</option>
+              <option value="ocean-pro" selected data-i18n="defaultModelPro">Ocean Pro — balanced</option>
+              <option value="ocean-thinking" data-i18n="defaultModelThinking">Ocean Thinking — deep reasoning</option>
+              <option value="ocean-code" data-i18n="defaultModelCode">Ocean Code — engineering</option>
             </select>
+            <div class="osel-trigger"><span class="osel-label"></span><svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="osel-menu"></div>
+          </div>
           </div>
           <div class="setting-row">
-            <label>Temperature <span class="setting-value" id="temperatureValue">0.7</span></label>
+            <label data-i18n="temperature">Temperature <span class="setting-value" id="temperatureValue">0.7</span></label>
             <input type="range" id="temperatureRange" min="0" max="1.5" step="0.1" value="0.7">
           </div>
           <div class="setting-row">
-            <label>Max response length <span class="setting-value" id="maxTokensValue">No limit</span></label>
+            <label data-i18n="maxResponseLength">Max response length <span class="setting-value" id="maxTokensValue">No limit</span></label>
             <input type="range" id="maxTokensRange" min="0" max="8000" step="250" value="0">
           </div>
           <div class="setting-row toggle-row">
-            <label>Default: web search on</label>
+            <label data-i18n="defaultWebSearchOn">Default: web search on</label>
             <label class="switch"><input type="checkbox" id="defaultWebSearchToggle"><span class="slider"></span></label>
           </div>
           <div class="setting-row toggle-row">
-            <label>Default: extended thinking on</label>
+            <label data-i18n="defaultThinkingOn">Default: extended thinking on</label>
             <label class="switch"><input type="checkbox" id="defaultThinkingToggle"><span class="slider"></span></label>
           </div>
           <div class="setting-row">
-            <label>Backend endpoint</label>
+            <label data-i18n="endpointPreset">Backend endpoint preset</label>
+            <div class="osel">
+            <select id="endpointPresetSelect">
+              <option value="/chat" data-i18n="endpointDefault">/chat (default)</option>
+              <option value="/api/chat">/api/chat</option>
+              <option value="/api/v1/chat/completions">/api/v1/chat/completions</option>
+              <option value="custom" data-i18n="customPath">Custom path…</option>
+            </select>
+            <div class="osel-trigger"><span class="osel-label"></span><svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="osel-menu"></div>
+          </div>
+          </div>
+          <div class="setting-row" id="endpointInputRow">
+            <label data-i18n="backendEndpoint">Backend endpoint</label>
             <input type="text" id="endpointInput" placeholder="/chat" value="/chat">
           </div>
           <div class="setting-row">
-            <label>API key <span class="setting-value">(sent as header, stored locally only)</span></label>
+            <label data-i18n="apiKey">API key <span class="setting-value" data-i18n="apiKeyNote">(sent as header, stored locally only)</span></label>
             <div class="input-with-btn">
               <input type="password" id="apiKeyInput" placeholder="sk-...">
-              <button class="btn-secondary" id="toggleApiKeyBtn">Show</button>
+              <button class="btn-secondary" id="toggleApiKeyBtn" data-i18n="show">Show</button>
             </div>
           </div>
           <div class="setting-row">
-            <button class="btn-secondary" id="testConnectionBtn">Test connection</button>
+            <button class="btn-secondary" id="testConnectionBtn" data-i18n="testConnection">Test connection</button>
             <span class="connection-status" id="connectionStatus"></span>
           </div>
         </div>
 
         <div class="settings-panel" data-panel="privacy">
           <div class="setting-row toggle-row">
-            <label>Save conversations locally</label>
+            <label data-i18n="saveLocally">Save conversations locally</label>
             <label class="switch"><input type="checkbox" id="saveLocallyToggle" checked><span class="slider"></span></label>
           </div>
           <div class="setting-row toggle-row">
-            <label>Include chat history as context</label>
+            <label data-i18n="includeHistory">Include chat history as context</label>
             <label class="switch"><input type="checkbox" id="includeHistoryToggle" checked><span class="slider"></span></label>
           </div>
           <div class="setting-row toggle-row">
-            <label>Allow analytics (none collected by default)</label>
+            <label data-i18n="allowAnalytics">Allow analytics (none collected by default)</label>
             <label class="switch"><input type="checkbox" id="analyticsToggle"><span class="slider"></span></label>
           </div>
           <div class="setting-row toggle-row">
-            <label>Mask attachments in exported files</label>
+            <label data-i18n="maskAttachments">Mask attachments in exported files</label>
             <label class="switch"><input type="checkbox" id="maskAttachmentsToggle"><span class="slider"></span></label>
           </div>
           <div class="setting-row">
-            <label>Auto-delete conversations older than</label>
+            <label data-i18n="autoDelete">Auto-delete conversations older than</label>
+            <div class="osel">
             <select id="autoDeleteSelect">
-              <option value="0">Never</option>
-              <option value="7">7 days</option>
-              <option value="30">30 days</option>
-              <option value="90">90 days</option>
+              <option value="0" data-i18n="never">Never</option>
+              <option value="7" data-i18n="days7">7 days</option>
+              <option value="30" data-i18n="days30">30 days</option>
+              <option value="90" data-i18n="days90">90 days</option>
             </select>
+            <div class="osel-trigger"><span class="osel-label"></span><svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="osel-menu"></div>
           </div>
-          <p class="muted-text">Everything you type stays in your browser's local storage unless your configured backend at the endpoint above sends it elsewhere. Ocean AI itself does not transmit your data to any third party.</p>
+          </div>
+          <p class="muted-text" data-i18n="privacyNote">Everything you type stays in your browser's local storage unless your configured backend at the endpoint above sends it elsewhere. Ocean AI itself does not transmit your data to any third party.</p>
         </div>
 
         <div class="settings-panel" data-panel="data">
           <div class="setting-row">
-            <label>Export all conversations</label>
+            <label data-i18n="exportAll">Export all conversations</label>
             <div class="btn-row">
-              <button class="btn-secondary" id="exportAllBtn">Download JSON</button>
-              <button class="btn-secondary" id="exportAllMdBtn">Download Markdown (.zip-style bundle)</button>
+              <button class="btn-secondary" id="exportAllBtn" data-i18n="downloadJson">Download JSON</button>
+              <button class="btn-secondary" id="exportAllMdBtn" data-i18n="downloadMd">Download Markdown (.zip-style bundle)</button>
             </div>
           </div>
 
           <div class="setting-row">
-            <label>Import conversations</label>
+            <label data-i18n="importConversations">Import conversations</label>
             <div class="import-dropzone" id="importDropzone">
               <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 16V4m0 0L7 9m5-5l5 5M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <div><b>Drop a .json export here</b> or click to browse</div>
+              <div><b data-i18n="dropJson">Drop a .json export here</b> <span data-i18n="orClickBrowse">or click to browse</span></div>
               <input type="file" id="importFile" accept=".json" hidden>
             </div>
             <div class="import-preview" id="importPreview" style="display:none;">
@@ -1290,55 +563,56 @@ body {
               </div>
               <div class="import-list" id="importList"></div>
               <div class="setting-row">
-                <label>Import mode</label>
+                <label data-i18n="importMode">Import mode</label>
                 <div class="radio-row">
-                  <label class="radio-option"><input type="radio" name="importMode" value="merge" checked> Merge (add new, keep existing)</label>
-                  <label class="radio-option"><input type="radio" name="importMode" value="replace"> Replace (overwrite everything)</label>
+                  <label class="radio-option"><input type="radio" name="importMode" value="merge" checked> <span data-i18n="importMerge">Merge (add new, keep existing)</span></label>
+                  <label class="radio-option"><input type="radio" name="importMode" value="replace"> <span data-i18n="importReplace">Replace (overwrite everything)</span></label>
                 </div>
               </div>
               <div class="modal-btns">
-                <button class="btn-full" id="cancelImportBtn">Cancel</button>
-                <button class="btn-full btn-primary" id="confirmImportBtn">Import conversations</button>
+                <button class="btn-full" id="cancelImportBtn" data-i18n="cancel">Cancel</button>
+                <button class="btn-full btn-primary" id="confirmImportBtn" data-i18n="importConversationsBtn">Import conversations</button>
               </div>
               <div class="import-progress" id="importProgress" style="display:none;">
                 <div class="import-progress-bar"><div class="import-progress-fill" id="importProgressFill"></div></div>
-                <span id="importProgressLabel">Importing…</span>
+                <span id="importProgressLabel" data-i18n="importing">Importing…</span>
               </div>
             </div>
           </div>
 
           <div class="setting-row">
-            <label>Clear all conversations</label>
-            <button class="btn-danger" id="clearAllSettingsBtn">Delete all chats</button>
+            <label data-i18n="clearAllConvos">Clear all conversations</label>
+            <button class="btn-danger" id="clearAllSettingsBtn" data-i18n="deleteAllChats">Delete all chats</button>
           </div>
           <div class="setting-row">
-            <label>Reset all settings to default</label>
-            <button class="btn-danger" id="resetSettingsBtn">Reset settings</button>
+            <label data-i18n="resetAllSettings">Reset all settings to default</label>
+            <button class="btn-danger" id="resetSettingsBtn" data-i18n="resetSettingsBtn">Reset settings</button>
           </div>
           <div class="setting-row">
-            <label>Storage used</label>
+            <label data-i18n="storageUsed">Storage used</label>
             <div class="storage-meta" id="storageMeta">—</div>
           </div>
         </div>
 
         <div class="settings-panel" data-panel="shortcuts">
-          <div class="shortcut-row"><span>Send message</span><kbd>Enter</kbd></div>
-          <div class="shortcut-row"><span>New line</span><kbd>Shift</kbd><kbd>Enter</kbd></div>
-          <div class="shortcut-row"><span>New chat</span><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>O</kbd></div>
-          <div class="shortcut-row"><span>Search chats</span><kbd>Ctrl</kbd><kbd>K</kbd></div>
-          <div class="shortcut-row"><span>Toggle sidebar</span><kbd>Ctrl</kbd><kbd>B</kbd></div>
-          <div class="shortcut-row"><span>Toggle theme</span><kbd>Ctrl</kbd><kbd>J</kbd></div>
-          <div class="shortcut-row"><span>Open settings</span><kbd>Ctrl</kbd><kbd>,</kbd></div>
-          <div class="shortcut-row"><span>Close dialog</span><kbd>Esc</kbd></div>
-          <div class="shortcut-row"><span>Stop generating</span><kbd>Ctrl</kbd><kbd>Backspace</kbd></div>
+          <div class="shortcut-row"><span data-i18n="scSend">Send message</span><kbd>Enter</kbd></div>
+          <div class="shortcut-row"><span data-i18n="scNewLine">New line</span><kbd>Shift</kbd><kbd>Enter</kbd></div>
+          <div class="shortcut-row"><span data-i18n="scNewChat">New chat</span><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>O</kbd></div>
+          <div class="shortcut-row"><span data-i18n="scSearch">Search chats</span><kbd>Ctrl</kbd><kbd>K</kbd></div>
+          <div class="shortcut-row"><span data-i18n="scToggleSidebar">Toggle sidebar</span><kbd>Ctrl</kbd><kbd>B</kbd></div>
+          <div class="shortcut-row"><span data-i18n="scToggleTheme">Toggle theme</span><kbd>Ctrl</kbd><kbd>J</kbd></div>
+          <div class="shortcut-row"><span data-i18n="scOpenSettings">Open settings</span><kbd>Ctrl</kbd><kbd>,</kbd></div>
+          <div class="shortcut-row"><span data-i18n="scCloseDialog">Close dialog</span><kbd>Esc</kbd></div>
+          <div class="shortcut-row"><span data-i18n="scStopGenerating">Stop generating</span><kbd>Ctrl</kbd><kbd>Backspace</kbd></div>
         </div>
 
         <div class="settings-panel" data-panel="about">
           <div class="about-block">
             <div class="brand-mark" style="font-size:22px;">OCEAN<span class="brand-accent">AI</span></div>
-            <p>Apex Workspace · Version 2.1</p>
-            <p class="muted-text">A local-first AI chat workspace with unlimited messages and conversations. Everything is stored in your browser's local storage. Connect any backend at the configured endpoint to power responses.</p>
+            <p data-i18n="aboutVersion">Apex Workspace · Version 2.2</p>
+            <p class="muted-text" data-i18n="aboutDesc">A local-first AI chat workspace. Conversations are stored in your browser's local storage. Connect any backend at the configured endpoint to power responses.</p>
             <div class="about-stats" id="aboutStats"></div>
+            <p class="about-tagline"><b data-i18n="aboutTagline">I'm Not A Things or Humans, I'm Everything !</b></p>
           </div>
         </div>
 
@@ -1347,23 +621,24 @@ body {
   </div>
 </div>
 
+<!-- ============ SHARE MODAL ============ -->
 <div class="modal" id="shareModal">
   <div class="modal-content">
     <div class="modal-header">
-      <span>Share conversation</span>
+      <span data-i18n="shareConversation">Share conversation</span>
       <button class="icon-btn" id="closeShareBtn">
         <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
     </div>
     <div class="modal-body">
-      <p class="muted-text">Anyone with this link can view a copy of this conversation.</p>
+      <p class="muted-text" data-i18n="shareNote">Anyone with this link can view a copy of this conversation.</p>
       <div class="share-link-row">
         <input type="text" id="shareLink" readonly>
-        <button class="btn-secondary" id="copyShareLinkBtn">Copy</button>
+        <button class="btn-secondary" id="copyShareLinkBtn" data-i18n="copy">Copy</button>
       </div>
       <div class="modal-btns">
-        <button class="btn-full" id="exportMdBtn">Export as Markdown</button>
-        <button class="btn-full" id="exportTxtBtn">Export as Text</button>
+        <button class="btn-full" id="exportMdBtn" data-i18n="exportMd">Export as Markdown</button>
+        <button class="btn-full" id="exportTxtBtn" data-i18n="exportTxt">Export as Text</button>
       </div>
     </div>
   </div>
@@ -1371,25 +646,26 @@ body {
 
 <div class="toast" id="toast"></div>
 
+<!-- ============ NEW PROJECT MODAL ============ -->
 <div class="modal" id="projectModal">
   <div class="modal-content">
     <div class="modal-header">
-      <span>New project</span>
+      <span data-i18n="newProject">New project</span>
       <button class="icon-btn" id="closeProjectBtn">
         <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
     </div>
     <div class="modal-body">
       <div class="setting-row">
-        <label>Project name</label>
-        <input type="text" id="projectNameInput" placeholder="e.g. Marketing copy, Side project API...">
+        <label data-i18n="projectName">Project name</label>
+        <input type="text" id="projectNameInput" placeholder="e.g. Marketing copy, Side project API..." data-i18n-placeholder="projectNamePlaceholder">
       </div>
       <div class="setting-row">
-        <label>Project instructions (applied to every chat inside)</label>
-        <textarea id="projectInstructionsInput" rows="4" placeholder="e.g. Always respond in formal English and cite sources."></textarea>
+        <label data-i18n="projectInstructions">Project instructions (applied to every chat inside)</label>
+        <textarea id="projectInstructionsInput" rows="4" placeholder="e.g. Always respond in formal English and cite sources." data-i18n-placeholder="projectInstructionsPlaceholder"></textarea>
       </div>
       <div class="setting-row">
-        <label>Color</label>
+        <label data-i18n="color">Color</label>
         <div class="accent-row" id="projectColorRow">
           <button class="accent-dot active" data-color="#3b82f6" style="background:#3b82f6"></button>
           <button class="accent-dot" data-color="#06b6d4" style="background:#06b6d4"></button>
@@ -1400,2140 +676,13 @@ body {
         </div>
       </div>
       <div class="modal-btns">
-        <button class="btn-full" id="cancelProjectBtn">Cancel</button>
-        <button class="btn-full btn-primary" id="saveProjectBtn">Create project</button>
+        <button class="btn-full" id="cancelProjectBtn" data-i18n="cancel">Cancel</button>
+        <button class="btn-full btn-primary" id="saveProjectBtn" data-i18n="createProject">Create project</button>
       </div>
     </div>
   </div>
 </div>
 
-<script>
-/* ===================================================================
-   OCEAN AI — Apex Workspace — Application Logic
-   =================================================================== */
-
-(function () {
-  'use strict';
-
-  // ---------------------------------------------------------------
-  // STATE
-  // ---------------------------------------------------------------
-  const STORAGE_KEY = 'oceanai_conversations_v2';
-  const SETTINGS_KEY = 'oceanai_settings_v2';
-  const PROJECTS_KEY = 'oceanai_projects_v1';
-
-  const MODEL_CATALOG = [
-    { id: 'ocean-flash', name: 'Ocean Flash', desc: 'Fastest responses for everyday tasks like quick questions, simple edits, and casual chat.', tags: ['Fast', 'Low cost'], dot: 'flash' },
-    { id: 'ocean-pro', name: 'Ocean Pro', desc: 'Balanced reasoning and speed. The default choice for most conversations and general work.', tags: ['Balanced', 'General purpose'], dot: '' },
-    { id: 'ocean-thinking', name: 'Ocean Thinking', desc: 'Extended step-by-step reasoning for math, logic, planning, and multi-step problems.', tags: ['Deep reasoning', 'Slower'], dot: 'think' },
-    { id: 'ocean-code', name: 'Ocean Code', desc: 'Tuned for programming — code generation, debugging, refactors, and technical explanations.', tags: ['Engineering', 'Syntax-aware'], dot: 'code' }
-  ];
-
-  const SCRIPT_LIBRARY = [
-    {
-      id: 'remote-event-basics',
-      title: 'Client → Server communication',
-      category: 'communication',
-      level: 'beginner',
-      desc: 'The standard way a LocalScript asks a Script on the server to do something, using a RemoteEvent in ReplicatedStorage.',
-      image: 'https://raw.githubusercontent.com/github/explore/main/topics/lua/lua.png',
-      imageAlt: 'Lua logo (GitHub topic image)',
-      sourceLinks: [
-        { label: 'Roblox Docs: RemoteEvent', url: 'https://create.roblox.com/docs/reference/engine/classes/RemoteEvent' },
-        { label: 'Roblox Docs: Client-Server model', url: 'https://create.roblox.com/docs/scripting/networking/client-server-model' }
-      ],
-      files: [
-        {
-          name: 'ReplicatedStorage/Remotes/RequestReward (RemoteEvent)',
-          lang: 'text',
-          code: 'Create this as a RemoteEvent instance inside ReplicatedStorage named "RequestReward".'
-        },
-        {
-          name: 'StarterPlayerScripts/RewardClient.lua (LocalScript)',
-          lang: 'lua',
-          code: `local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local requestReward = ReplicatedStorage.Remotes.RequestReward
-
-local button = script.Parent:WaitForChild("ClaimButton")
-
-button.MouseButton1Click:Connect(function()
-	requestReward:FireServer()
-end)`
-        },
-        {
-          name: 'ServerScriptService/RewardServer.lua (Script)',
-          lang: 'lua',
-          code: `local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local requestReward = ReplicatedStorage.Remotes.RequestReward
-
-requestReward.OnServerEvent:Connect(function(player)
-	-- Always validate on the server — never trust the client
-	local leaderstats = player:FindFirstChild("leaderstats")
-	if not leaderstats then return end
-
-	local coins = leaderstats:FindFirstChild("Coins")
-	if coins then
-		coins.Value += 25
-	end
-end)`
-        }
-      ]
-    },
-    {
-      id: 'datastore-save-load',
-      title: 'Saving player data (DataStoreService)',
-      category: 'data',
-      level: 'intermediate',
-      desc: 'Persist player progress between sessions using DataStoreService, with pcall error handling so a failed save never crashes the server.',
-      image: 'https://raw.githubusercontent.com/Roblox/luau/master/docs/logo.svg',
-      imageAlt: 'Luau language logo (GitHub)',
-      sourceLinks: [
-        { label: 'Roblox Docs: Data stores', url: 'https://create.roblox.com/docs/cloud-services/data-stores' },
-        { label: 'Roblox Docs: Saving player data', url: 'https://create.roblox.com/docs/cloud-services/data-stores/saving-player-data' }
-      ],
-      files: [
-        {
-          name: 'ServerScriptService/PlayerDataHandler.lua (Script)',
-          lang: 'lua',
-          code: `local DataStoreService = game:GetService("DataStoreService")
-local Players = game:GetService("Players")
-
-local playerStore = DataStoreService:GetDataStore("PlayerCoins_v1")
-
-local function loadData(player)
-	local key = "Player_" .. player.UserId
-	local success, result = pcall(function()
-		return playerStore:GetAsync(key)
-	end)
-
-	local leaderstats = Instance.new("Folder")
-	leaderstats.Name = "leaderstats"
-	leaderstats.Parent = player
-
-	local coins = Instance.new("IntValue")
-	coins.Name = "Coins"
-	coins.Value = (success and result) or 0
-	coins.Parent = leaderstats
-end
-
-local function saveData(player)
-	local key = "Player_" .. player.UserId
-	local leaderstats = player:FindFirstChild("leaderstats")
-	if not leaderstats then return end
-
-	local coins = leaderstats:FindFirstChild("Coins")
-	if not coins then return end
-
-	local success, err = pcall(function()
-		playerStore:SetAsync(key, coins.Value)
-	end)
-
-	if not success then
-		warn("Failed to save data for " .. player.Name .. ": " .. tostring(err))
-	end
-end
-
-Players.PlayerAdded:Connect(loadData)
-Players.PlayerRemoving:Connect(saveData)
-
-game:BindToClose(function()
-	for _, player in ipairs(Players:GetPlayers()) do
-		saveData(player)
-	end
-end)`
-        }
-      ]
-    },
-    {
-      id: 'tween-service-anim',
-      title: 'Smooth UI animation (TweenService)',
-      category: 'ui',
-      level: 'beginner',
-      desc: 'Animate a Frame sliding in and fading in using TweenService — the standard way to make Roblox UI feel polished.',
-      image: 'https://images.unsplash.com/photo-1614624532983-4ce03382d63d?w=800&q=60',
-      imageAlt: 'Abstract UI motion design reference',
-      sourceLinks: [
-        { label: 'Roblox Docs: TweenService', url: 'https://create.roblox.com/docs/reference/engine/classes/TweenService' }
-      ],
-      files: [
-        {
-          name: 'StarterGui/PanelAnimator.lua (LocalScript)',
-          lang: 'lua',
-          code: `local TweenService = game:GetService("TweenService")
-
-local panel = script.Parent:WaitForChild("Panel")
-local openButton = script.Parent:WaitForChild("OpenButton")
-
-local closedPosition = UDim2.new(0.5, 0, 1.2, 0)
-local openPosition = UDim2.new(0.5, 0, 0.5, 0)
-
-panel.Position = closedPosition
-panel.BackgroundTransparency = 1
-
-local tweenInfo = TweenInfo.new(
-	0.45,                       -- duration (seconds)
-	Enum.EasingStyle.Quint,
-	Enum.EasingDirection.Out
-)
-
-local isOpen = false
-
-openButton.MouseButton1Click:Connect(function()
-	isOpen = not isOpen
-
-	local goal = {
-		Position = isOpen and openPosition or closedPosition,
-		BackgroundTransparency = isOpen and 0 or 1
-	}
-
-	local tween = TweenService:Create(panel, tweenInfo, goal)
-	tween:Play()
-end)`
-        }
-      ]
-    },
-    {
-      id: 'draggable-ui-library',
-      title: 'Draggable settings panel (mini UI library)',
-      category: 'ui',
-      level: 'intermediate',
-      desc: 'A small reusable ModuleScript that turns any Frame into a draggable window — the same pattern real Roblox UI libraries use under the hood.',
-      image: 'https://raw.githubusercontent.com/Roblox/roact/master/logo.png',
-      imageAlt: 'Roblox UI framework reference logo (GitHub)',
-      sourceLinks: [
-        { label: 'Roblox Docs: GuiObject.Dragging', url: 'https://create.roblox.com/docs/reference/engine/classes/GuiObject' },
-        { label: 'Roblox Docs: UserInputService', url: 'https://create.roblox.com/docs/reference/engine/classes/UserInputService' }
-      ],
-      files: [
-        {
-          name: 'ReplicatedStorage/Modules/Draggable.lua (ModuleScript)',
-          lang: 'lua',
-          code: `local UserInputService = game:GetService("UserInputService")
-
-local Draggable = {}
-
--- Call Draggable.enable(someFrame) to make any Frame drag-movable by its own surface
-function Draggable.enable(frame)
-	local dragging = false
-	local dragStart, startPos
-
-	local function update(input)
-		local delta = input.Position - dragStart
-		frame.Position = UDim2.new(
-			startPos.X.Scale, startPos.X.Offset + delta.X,
-			startPos.Y.Scale, startPos.Y.Offset + delta.Y
-		)
-	end
-
-	frame.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1
-			or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = true
-			dragStart = input.Position
-			startPos = frame.Position
-
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging = false
-				end
-			end)
-		end
-	end)
-
-	UserInputService.InputChanged:Connect(function(input)
-		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
-			or input.UserInputType == Enum.UserInputType.Touch) then
-			update(input)
-		end
-	end)
-end
-
-return Draggable`
-        },
-        {
-          name: 'StarterGui/SettingsPanel/Init.lua (LocalScript)',
-          lang: 'lua',
-          code: `local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Draggable = require(ReplicatedStorage.Modules.Draggable)
-
-local panel = script.Parent:WaitForChild("SettingsFrame")
-Draggable.enable(panel)`
-        }
-      ]
-    },
-    {
-      id: 'leaderstats-setup',
-      title: 'Leaderboard stats (leaderstats)',
-      category: 'gameplay',
-      level: 'beginner',
-      desc: 'The folder-and-IntValue convention Roblox uses to automatically display player stats in the in-game leaderboard.',
-      image: 'https://tr.rbxcdn.com/180DAY-00000000000000000000000000000000/420/420/Image/Png',
-      imageAlt: 'Roblox asset thumbnail (rbxcdn placeholder example)',
-      sourceLinks: [
-        { label: 'Roblox Docs: leaderstats', url: 'https://create.roblox.com/docs/players/leaderboards' }
-      ],
-      files: [
-        {
-          name: 'ServerScriptService/LeaderstatsSetup.lua (Script)',
-          lang: 'lua',
-          code: `local Players = game:GetService("Players")
-
-Players.PlayerAdded:Connect(function(player)
-	local leaderstats = Instance.new("Folder")
-	leaderstats.Name = "leaderstats"
-	leaderstats.Parent = player
-
-	local coins = Instance.new("IntValue")
-	coins.Name = "Coins"
-	coins.Value = 0
-	coins.Parent = leaderstats
-
-	local wins = Instance.new("IntValue")
-	wins.Name = "Wins"
-	wins.Value = 0
-	wins.Parent = leaderstats
-end)`
-        }
-      ]
-    },
-    {
-      id: 'module-script-pattern',
-      title: 'Reusable game logic (ModuleScript)',
-      category: 'architecture',
-      level: 'beginner',
-      desc: 'How to structure shared logic in a ModuleScript so both server scripts and other modules can require() and reuse it cleanly.',
-      image: 'https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/main/img/icon.png',
-      imageAlt: 'Luau tooling icon (GitHub)',
-      sourceLinks: [
-        { label: 'Roblox Docs: ModuleScript', url: 'https://create.roblox.com/docs/reference/engine/classes/ModuleScript' }
-      ],
-      files: [
-        {
-          name: 'ServerScriptService/Modules/EconomyService.lua (ModuleScript)',
-          lang: 'lua',
-          code: `local EconomyService = {}
-
-function EconomyService.addCoins(player, amount)
-	local leaderstats = player:FindFirstChild("leaderstats")
-	if not leaderstats then return false end
-
-	local coins = leaderstats:FindFirstChild("Coins")
-	if not coins then return false end
-
-	coins.Value += amount
-	return true
-end
-
-function EconomyService.canAfford(player, cost)
-	local leaderstats = player:FindFirstChild("leaderstats")
-	local coins = leaderstats and leaderstats:FindFirstChild("Coins")
-	return coins ~= nil and coins.Value >= cost
-end
-
-return EconomyService`
-        },
-        {
-          name: 'ServerScriptService/ShopHandler.lua (Script)',
-          lang: 'lua',
-          code: `local EconomyService = require(script.Parent.Modules.EconomyService)
-
-local function purchaseItem(player, itemCost)
-	if EconomyService.canAfford(player, itemCost) then
-		EconomyService.addCoins(player, -itemCost)
-		return true
-	end
-	return false
-end`
-        }
-      ]
-    }
-  ];
-
-  const SCRIPT_CATEGORIES = [
-    { id: 'all', label: 'All' },
-    { id: 'communication', label: 'Client-Server' },
-    { id: 'data', label: 'Data saving' },
-    { id: 'ui', label: 'UI & animation' },
-    { id: 'gameplay', label: 'Gameplay' },
-    { id: 'architecture', label: 'Architecture' }
-  ];
-  let activeScriptCategory = 'all';
-  let scriptSearchQuery = '';
-
-  let state = {
-    conversations: {},   // id -> { id, title, messages: [], pinned, model, createdAt, updatedAt, projectId }
-    projects: {},        // id -> { id, name, instructions, color, createdAt }
-    activeId: null,
-    activeView: 'dashboard',
-    settings: {
-      theme: 'dark',
-      autoTheme: false,
-      accent: '#3b82f6',
-      fontSize: 15,
-      radius: 18,
-      fontFamily: "'Plus Jakarta Sans', 'Inter', 'Segoe UI', sans-serif",
-      bgUrl: '',
-      bgOpacity: 0.92,
-      compact: false,
-      reduceMotion: false,
-      showAvatars: true,
-      customInstructions: '',
-      nickname: '',
-      tone: 'balanced',
-      enterToSend: true,
-      suggestFollowups: true,
-      streamResponses: true,
-      streamSpeed: 3,
-      autoRename: true,
-      confirmDelete: true,
-      spellcheck: true,
-      defaultModel: 'ocean-pro',
-      temperature: 0.7,
-      maxTokens: 0,
-      defaultWebSearch: false,
-      defaultThinking: false,
-      endpoint: '/chat',
-      apiKey: '',
-      saveLocally: true,
-      includeHistory: true,
-      analytics: false,
-      maskAttachments: false,
-      autoDeleteDays: 0,
-      sidebarCollapsed: false
-    }
-  };
-
-  let pendingAttachments = []; // {type: 'image'|'file', name, dataUrl/text}
-  let currentModel = 'ocean-pro';
-  let webSearchActive = false;
-  let thinkActive = false;
-  let canvasActive = false;
-  let isGenerating = false;
-  let abortRequested = false;
-  let recognition = null;
-  let isRecording = false;
-
-  const MODEL_LABELS = {
-    'ocean-flash': 'Ocean Flash',
-    'ocean-pro': 'Ocean Pro',
-    'ocean-thinking': 'Ocean Thinking',
-    'ocean-code': 'Ocean Code'
-  };
-
-  const SUGGESTIONS = [
-    { title: 'Explain a concept', sub: 'Break down quantum computing simply', prompt: 'Explain quantum computing like I\'m new to the topic.' },
-    { title: 'Write something', sub: 'Draft a short blog post intro', prompt: 'Write an engaging intro paragraph for a blog post about productivity.' },
-    { title: 'Debug code', sub: 'Find the issue in a function', prompt: 'Help me debug a piece of code that isn\'t working as expected.' },
-    { title: 'Brainstorm ideas', sub: 'Plan a weekend project', prompt: 'Brainstorm five creative weekend project ideas for me.' }
-  ];
-
-  const FOLLOWUPS_BANK = [
-    'Can you go deeper on that?',
-    'Give me a concrete example',
-    'Summarize this in 3 bullet points',
-    'What are the tradeoffs here?'
-  ];
-
-  // ---------------------------------------------------------------
-  // DOM REFS
-  // ---------------------------------------------------------------
-  const $ = (sel) => document.querySelector(sel);
-  const $$ = (sel) => document.querySelectorAll(sel);
-
-  const chatBox = $('#chatBox');
-  const userInput = $('#userInput');
-  const sendBtn = $('#sendBtn');
-  const sidebar = $('#sidebar');
-  const historyList = $('#historyList');
-  const pinnedList = $('#pinnedList');
-  const chatTitle = $('#chatTitle');
-  const toast = $('#toast');
-
-  // ---------------------------------------------------------------
-  // PERSISTENCE
-  // ---------------------------------------------------------------
-  function loadState() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        state.conversations = parsed.conversations || {};
-        state.activeId = parsed.activeId || null;
-      }
-    } catch (e) { console.warn('Failed to load conversations', e); }
-
-    try {
-      const rawProjects = localStorage.getItem(PROJECTS_KEY);
-      if (rawProjects) state.projects = JSON.parse(rawProjects) || {};
-    } catch (e) { console.warn('Failed to load projects', e); }
-
-    try {
-      const rawSettings = localStorage.getItem(SETTINGS_KEY);
-      if (rawSettings) {
-        state.settings = Object.assign(state.settings, JSON.parse(rawSettings));
-      }
-    } catch (e) { console.warn('Failed to load settings', e); }
-  }
-
-  function saveConversations() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        conversations: state.conversations,
-        activeId: state.activeId
-      }));
-    } catch (e) { console.warn('Failed to save conversations', e); }
-    updateStorageMeta();
-  }
-
-  function saveSettings() {
-    try {
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings));
-    } catch (e) { console.warn('Failed to save settings', e); }
-  }
-
-  function saveProjects() {
-    try {
-      localStorage.setItem(PROJECTS_KEY, JSON.stringify(state.projects));
-    } catch (e) { console.warn('Failed to save projects', e); }
-  }
-
-  function updateStorageMeta() {
-    const el = $('#storageMeta');
-    const convoBytes = new Blob([localStorage.getItem(STORAGE_KEY) || '']).size;
-    const settingsBytes = new Blob([localStorage.getItem(SETTINGS_KEY) || '']).size;
-    const projectBytes = new Blob([localStorage.getItem(PROJECTS_KEY) || '']).size;
-    const totalKb = ((convoBytes + settingsBytes + projectBytes) / 1024).toFixed(1);
-    const count = Object.keys(state.conversations).length;
-    const msgCount = Object.values(state.conversations).reduce((sum, c) => sum + c.messages.length, 0);
-    if (el) el.textContent = `${count} conversation${count !== 1 ? 's' : ''} · ${msgCount} message${msgCount !== 1 ? 's' : ''} · ${totalKb} KB used`;
-
-    const aboutStats = $('#aboutStats');
-    if (aboutStats) {
-      aboutStats.innerHTML = `
-        <div class="stat"><div class="stat-num">${count}</div><div class="stat-label">Chats</div></div>
-        <div class="stat"><div class="stat-num">${msgCount}</div><div class="stat-label">Messages</div></div>
-        <div class="stat"><div class="stat-num">${Object.keys(state.projects).length}</div><div class="stat-label">Projects</div></div>
-        <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Limit</div></div>`;
-    }
-  }
-
-  // ---------------------------------------------------------------
-  // UTIL
-  // ---------------------------------------------------------------
-  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
-
-  function escapeHtml(text) {
-    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
-  function showToast(msg, icon) {
-    toast.innerHTML = (icon ? icon + ' ' : '') + escapeHtml(msg);
-    toast.classList.add('visible');
-    clearTimeout(showToast._t);
-    showToast._t = setTimeout(() => toast.classList.remove('visible'), 2200);
-  }
-
-  function timeAgo(ts) {
-    const diff = Date.now() - ts;
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return 'just now';
-    if (mins < 60) return `${mins}m ago`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
-    const days = Math.floor(hrs / 24);
-    if (days < 7) return `${days}d ago`;
-    return new Date(ts).toLocaleDateString();
-  }
-
-  function dayBucket(ts) {
-    const now = new Date(); const d = new Date(ts);
-    const startOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-    const diffDays = Math.round((startOfDay(now) - startOfDay(d)) / 86400000);
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return 'Previous 7 days';
-    if (diffDays < 30) return 'Previous 30 days';
-    return 'Older';
-  }
-
-  // ---------------------------------------------------------------
-  // SIMPLE MARKDOWN RENDERER
-  // ---------------------------------------------------------------
-  function renderMarkdown(raw) {
-    let text = raw;
-
-    // Extract code blocks first to protect from other transforms
-    const codeBlocks = [];
-    text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, (m, lang, code) => {
-      const idx = codeBlocks.length;
-      codeBlocks.push({ lang: lang || 'text', code: code.replace(/\n$/, '') });
-      return `\x00CODEBLOCK${idx}\x00`;
-    });
-
-    // think blocks
-    text = text.replace(/<think>([\s\S]*?)<\/think>/g, (m, inner) => {
-      const id = 'think-' + uid();
-      return `\x00THINKBLOCK\x00${escapeHtml(inner.trim())}\x00ENDTHINK\x00`;
-    });
-
-    // Escape remaining HTML
-    text = escapeHtml(text);
-
-    // Re-inject think blocks
-    text = text.replace(/\x00THINKBLOCK\x00([\s\S]*?)\x00ENDTHINK\x00/g, (m, inner) => {
-      return `\x00THINKHTML\x00${inner}\x00ENDTHINKHTML\x00`;
-    });
-
-    // Headings
-    text = text.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-    text = text.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-    text = text.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-
-    // Bold / italic
-    text = text.replace(/\*\*\*(.+?)\*\*\*/g, '<b><i>$1</i></b>');
-    text = text.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
-    text = text.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<i>$1</i>');
-    text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
-
-    // Links
-    text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-
-    // Blockquotes
-    text = text.replace(/^&gt; (.*$)/gim, '<blockquote>$1</blockquote>');
-
-    // Tables (simple GFM)
-    text = text.replace(/((?:^\|.*\|\s*\n)+)/gim, (block) => {
-      const lines = block.trim().split('\n').filter(Boolean);
-      if (lines.length < 2) return block;
-      const headerCells = lines[0].split('|').map(c => c.trim()).filter((c, i, arr) => !(i === 0 && c === '') && !(i === arr.length - 1 && c === ''));
-      const sepLine = lines[1];
-      if (!/^[\s|:-]+$/.test(sepLine)) return block;
-      let html = '<table><thead><tr>' + headerCells.map(c => `<th>${c}</th>`).join('') + '</tr></thead><tbody>';
-      for (let i = 2; i < lines.length; i++) {
-        const cells = lines[i].split('|').map(c => c.trim()).filter((c, idx, arr) => !(idx === 0 && c === '') && !(idx === arr.length - 1 && c === ''));
-        html += '<tr>' + cells.map(c => `<td>${c}</td>`).join('') + '</tr>';
-      }
-      html += '</tbody></table>';
-      return html;
-    });
-
-    // Lists
-    text = text.replace(/^(?:-|\*) (.*)$/gim, '\x00UL\x00$1\x00ENDUL\x00');
-    text = text.replace(/(\x00UL\x00.*\x00ENDUL\x00\n?)+/g, (m) => {
-      const items = m.match(/\x00UL\x00(.*)\x00ENDUL\x00/g).map(i => i.replace(/\x00UL\x00|\x00ENDUL\x00/g, ''));
-      return '<ul>' + items.map(i => `<li>${i}</li>`).join('') + '</ul>';
-    });
-    text = text.replace(/^\d+\. (.*)$/gim, '\x00OL\x00$1\x00ENDOL\x00');
-    text = text.replace(/(\x00OL\x00.*\x00ENDOL\x00\n?)+/g, (m) => {
-      const items = m.match(/\x00OL\x00(.*)\x00ENDOL\x00/g).map(i => i.replace(/\x00OL\x00|\x00ENDOL\x00/g, ''));
-      return '<ol>' + items.map(i => `<li>${i}</li>`).join('') + '</ol>';
-    });
-
-    // Paragraphs: split on double newline
-    text = text.split(/\n\n+/).map(block => {
-      if (/^<(h1|h2|h3|ul|ol|table|blockquote)/.test(block.trim())) return block;
-      if (block.includes('\x00CODEBLOCK')) return block;
-      if (!block.trim()) return '';
-      return `<p>${block.replace(/\n/g, '<br>')}</p>`;
-    }).join('\n');
-
-    // Re-inject code blocks with header + copy button
-    text = text.replace(/\x00CODEBLOCK(\d+)\x00/g, (m, idx) => {
-      const block = codeBlocks[parseInt(idx)];
-      const codeId = 'code-' + uid();
-      return `<div class="code-block-wrap">
-        <div class="code-block-header">
-          <span>${escapeHtml(block.lang)}</span>
-          <button class="copy-code-btn" data-target="${codeId}">
-            <svg viewBox="0 0 24 24" width="13" height="13"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M5 15V5a2 2 0 012-2h10" stroke="currentColor" stroke-width="1.7" fill="none"/></svg>
-            Copy
-          </button>
-        </div>
-        <pre><code id="${codeId}">${escapeHtml(block.code)}</code></pre>
-      </div>`;
-    });
-
-    // Re-inject think blocks as collapsible
-    text = text.replace(/\x00THINKHTML\x00([\s\S]*?)\x00ENDTHINKHTML\x00/g, (m, inner) => {
-      return `<div class="think-block">
-        <div class="think-header" onclick="this.parentElement.classList.toggle('collapsed')">
-          <svg viewBox="0 0 24 24" width="13" height="13"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Thought process
-        </div>
-        <div class="think-body">${inner.replace(/\n/g, '<br>')}</div>
-      </div>`;
-    });
-
-    return text;
-  }
-
-  // ---------------------------------------------------------------
-  // CONVERSATION MANAGEMENT
-  // ---------------------------------------------------------------
-  function createConversation() {
-    const id = uid();
-    state.conversations[id] = {
-      id, title: 'New conversation', messages: [], pinned: false,
-      model: currentModel, createdAt: Date.now(), updatedAt: Date.now()
-    };
-    state.activeId = id;
-    saveConversations();
-    return id;
-  }
-
-  function getActiveConversation() {
-    if (!state.activeId || !state.conversations[state.activeId]) return null;
-    return state.conversations[state.activeId];
-  }
-
-  function deleteConversation(id) {
-    delete state.conversations[id];
-    if (state.activeId === id) {
-      state.activeId = null;
-    }
-    saveConversations();
-    renderHistory();
-    if (!state.activeId) {
-      renderChatEmpty();
-      chatTitle.textContent = 'New conversation';
-    }
-  }
-
-  function renameConversation(id, newTitle) {
-    if (state.conversations[id]) {
-      state.conversations[id].title = newTitle.trim() || 'Untitled chat';
-      saveConversations();
-      renderHistory();
-      if (id === state.activeId) chatTitle.textContent = state.conversations[id].title;
-    }
-  }
-
-  function togglePin(id) {
-    if (state.conversations[id]) {
-      state.conversations[id].pinned = !state.conversations[id].pinned;
-      saveConversations();
-      renderHistory();
-    }
-  }
-
-  function switchConversation(id) {
-    state.activeId = id;
-    saveConversations();
-    renderHistory();
-    setActiveView('dashboard');
-    renderActiveChat();
-    if (window.innerWidth <= 880) collapseSidebar(true);
-  }
-
-  // ---------------------------------------------------------------
-  // PROJECTS
-  // ---------------------------------------------------------------
-  function createProject(name, instructions, color) {
-    const id = uid();
-    state.projects[id] = { id, name: name.trim() || 'Untitled project', instructions: instructions.trim(), color, createdAt: Date.now() };
-    saveProjects();
-    renderProjects();
-    return id;
-  }
-
-  function deleteProject(id) {
-    delete state.projects[id];
-    Object.values(state.conversations).forEach(c => { if (c.projectId === id) delete c.projectId; });
-    saveProjects();
-    saveConversations();
-    renderProjects();
-    renderHistory();
-  }
-
-  function renderProjects() {
-    const grid = $('#projectGrid');
-    if (!grid) return;
-    const projects = Object.values(state.projects).sort((a, b) => b.createdAt - a.createdAt);
-    if (!projects.length) {
-      grid.innerHTML = `<div class="empty-state-mini" style="grid-column:1/-1;">No projects yet. Create one to group related chats with shared instructions.</div>`;
-      return;
-    }
-    grid.innerHTML = projects.map(p => {
-      const chatCount = Object.values(state.conversations).filter(c => c.projectId === p.id).length;
-      return `<div class="project-card" data-id="${p.id}">
-        <button class="hist-action-btn danger project-delete" data-id="${p.id}" title="Delete project">
-          <svg viewBox="0 0 24 24" width="13" height="13"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6h16z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/></svg>
-        </button>
-        <div class="p-name"><span class="project-color-dot" style="background:${p.color}"></span>${escapeHtml(p.name)}</div>
-        <div class="p-meta">${chatCount} chat${chatCount !== 1 ? 's' : ''}${p.instructions ? ' · has instructions' : ''}</div>
-      </div>`;
-    }).join('');
-
-    grid.querySelectorAll('.project-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('.project-delete')) return;
-        const id = createConversation();
-        state.conversations[id].projectId = card.dataset.id;
-        state.conversations[id].title = `${state.projects[card.dataset.id].name} chat`;
-        saveConversations();
-        switchConversation(id);
-      });
-    });
-    grid.querySelectorAll('.project-delete').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (confirm('Delete this project? Conversations inside will be kept but unlinked.')) deleteProject(btn.dataset.id);
-      });
-    });
-  }
-
-  // ---------------------------------------------------------------
-  // VIEW SWITCHING (Dashboard / Explore / Projects)
-  // ---------------------------------------------------------------
-  function setActiveView(view) {
-    state.activeView = view;
-    $$('.nav-menu .nav-item').forEach(i => i.classList.toggle('active', i.dataset.view === view));
-    $('#chatBox').style.display = view === 'dashboard' ? 'flex' : 'none';
-    $('#exploreView').classList.toggle('active', view === 'explore');
-    $('#projectsView').classList.toggle('active', view === 'projects');
-    const inputWrapper = document.querySelector('.input-wrapper');
-    inputWrapper.style.display = view === 'dashboard' ? 'flex' : 'none';
-    if (view === 'explore') renderScriptLibrary();
-    if (view === 'projects') renderProjects();
-  }
-
-  // ---------------------------------------------------------------
-  // SCRIPTING EXAMPLES LIBRARY
-  // ---------------------------------------------------------------
-  function renderLibFilters() {
-    const wrap = $('#libFilters');
-    if (!wrap) return;
-    wrap.innerHTML = SCRIPT_CATEGORIES.map(c =>
-      `<button class="lib-filter-chip ${c.id === activeScriptCategory ? 'active' : ''}" data-cat="${c.id}">${escapeHtml(c.label)}</button>`
-    ).join('');
-    wrap.querySelectorAll('.lib-filter-chip').forEach(btn => {
-      btn.addEventListener('click', () => {
-        activeScriptCategory = btn.dataset.cat;
-        renderLibFilters();
-        renderScriptLibrary();
-      });
-    });
-  }
-
-  function renderScriptLibrary() {
-    const grid = $('#modelGrid');
-    if (!grid) return;
-    renderLibFilters();
-
-    const q = scriptSearchQuery.toLowerCase().trim();
-    const filtered = SCRIPT_LIBRARY.filter(s => {
-      const matchesCat = activeScriptCategory === 'all' || s.category === activeScriptCategory;
-      const matchesQuery = !q || s.title.toLowerCase().includes(q) || s.desc.toLowerCase().includes(q);
-      return matchesCat && matchesQuery;
-    });
-
-    if (!filtered.length) {
-      grid.innerHTML = `<div class="empty-state-mini" style="grid-column:1/-1;">No examples match that search.</div>`;
-      return;
-    }
-
-    grid.innerHTML = filtered.map(s => {
-      const imgHtml = s.image
-        ? `<img class="example-card-img" src="${escapeHtml(s.image)}" alt="${escapeHtml(s.imageAlt || s.title)}" loading="lazy" onerror="this.outerHTML='<div class=&quot;example-card-img-fallback&quot;><svg viewBox=&quot;0 0 24 24&quot; width=&quot;26&quot; height=&quot;26&quot;><path d=&quot;M9 18V5l12-2v13M9 18a3 3 0 11-6 0 3 3 0 016 0zm12-2a3 3 0 11-6 0 3 3 0 016 0z&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; fill=&quot;none&quot;/></svg></div>'">`
-        : `<div class="example-card-img-fallback"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M9 18V5l12-2v13M9 18a3 3 0 11-6 0 3 3 0 016 0zm12-2a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div>`;
-
-      return `<div class="model-card example-card" data-id="${s.id}">
-        ${imgHtml}
-        <div class="example-card-body">
-          <div class="example-card-top">
-            <span class="ec-title">${escapeHtml(s.title)}</span>
-            <span class="ec-level ${s.level}">${escapeHtml(s.level)}</span>
-          </div>
-          <div class="ec-desc">${escapeHtml(s.desc)}</div>
-          <div class="ec-tags">
-            <span class="model-card-tag">${s.files.length} file${s.files.length !== 1 ? 's' : ''}</span>
-            <span class="model-card-tag">${escapeHtml(SCRIPT_CATEGORIES.find(c => c.id === s.category)?.label || s.category)}</span>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-
-    grid.querySelectorAll('.example-card').forEach(card => {
-      card.addEventListener('click', () => openScriptDetail(card.dataset.id));
-    });
-  }
-
-  $('#libSearchInput')?.addEventListener('input', (e) => {
-    scriptSearchQuery = e.target.value;
-    renderScriptLibrary();
-  });
-
-  function openScriptDetail(id) {
-    const example = SCRIPT_LIBRARY.find(s => s.id === id);
-    if (!example) return;
-
-    $('#scriptDetailTitle').textContent = example.title;
-
-    const imgHtml = example.image
-      ? `<img class="script-detail-img" src="${escapeHtml(example.image)}" alt="${escapeHtml(example.imageAlt || example.title)}" onerror="this.remove()">`
-      : '';
-
-    const linksHtml = example.sourceLinks?.length
-      ? `<div class="script-source-links">${example.sourceLinks.map(l => `<a class="source-link-chip" href="${escapeHtml(l.url)}" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" width="11" height="11"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>${escapeHtml(l.label)}</a>`).join('')}</div>`
-      : '';
-
-    const filesHtml = example.files.map(f => {
-      const codeId = 'lib-code-' + uid();
-      return `<div style="margin-bottom:14px;">
-        <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;">${escapeHtml(f.name)}</div>
-        <div class="code-block-wrap">
-          <div class="code-block-header">
-            <span>${escapeHtml(f.lang)}</span>
-            <button class="copy-code-btn" data-target="${codeId}">
-              <svg viewBox="0 0 24 24" width="13" height="13"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M5 15V5a2 2 0 012-2h10" stroke="currentColor" stroke-width="1.7" fill="none"/></svg>
-              Copy
-            </button>
-          </div>
-          <pre><code id="${codeId}">${escapeHtml(f.code)}</code></pre>
-        </div>
-      </div>`;
-    }).join('');
-
-    $('#scriptDetailBody').innerHTML = `
-      ${imgHtml}
-      <div class="script-detail-meta">
-        <span class="ec-level ${example.level}">${escapeHtml(example.level)}</span>
-        <span class="model-card-tag">${escapeHtml(SCRIPT_CATEGORIES.find(c => c.id === example.category)?.label || example.category)}</span>
-      </div>
-      <div class="script-detail-desc">${escapeHtml(example.desc)}</div>
-      ${linksHtml}
-      ${filesHtml}
-    `;
-
-    $('#scriptDetailModal').classList.add('open');
-  }
-
-  $('#closeScriptDetailBtn').addEventListener('click', () => $('#scriptDetailModal').classList.remove('open'));
-  $('#scriptDetailModal').addEventListener('click', (e) => { if (e.target.id === 'scriptDetailModal') $('#scriptDetailModal').classList.remove('open'); });
-  function renderHistory(filterText) {
-    const convos = Object.values(state.conversations).sort((a, b) => b.updatedAt - a.updatedAt);
-    const filter = (filterText || '').toLowerCase().trim();
-
-    const pinned = convos.filter(c => c.pinned && (!filter || c.title.toLowerCase().includes(filter)));
-    const rest = convos.filter(c => !c.pinned && (!filter || c.title.toLowerCase().includes(filter)));
-
-    pinnedList.innerHTML = pinned.map(c => historyItemHtml(c)).join('');
-    pinnedList.style.display = pinned.length ? 'flex' : 'none';
-    pinnedList.previousElementSibling.style.display = pinned.length ? 'flex' : 'none';
-
-    const groups = {};
-    rest.forEach(c => {
-      const b = dayBucket(c.updatedAt);
-      groups[b] = groups[b] || [];
-      groups[b].push(c);
-    });
-    const order = ['Today', 'Yesterday', 'Previous 7 days', 'Previous 30 days', 'Older'];
-    let html = '';
-    order.forEach(b => {
-      if (groups[b] && groups[b].length) {
-        html += `<div class="history-group-label">${b}</div>`;
-        html += groups[b].map(c => historyItemHtml(c)).join('');
-      }
-    });
-    if (!rest.length && !pinned.length) {
-      html = `<div style="padding:20px 8px;text-align:center;color:var(--text-tertiary);font-size:12.5px;">${filter ? 'No matching chats' : 'No conversations yet'}</div>`;
-    }
-    historyList.innerHTML = html;
-
-    bindHistoryEvents();
-  }
-
-  function historyItemHtml(c) {
-    const active = c.id === state.activeId ? 'active' : '';
-    return `<div class="history-item ${active}" data-id="${c.id}">
-      <svg class="hist-icon" viewBox="0 0 24 24" width="14" height="14"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>
-      <span class="hist-title">${escapeHtml(c.title)}</span>
-      <div class="hist-actions">
-        <button class="hist-action-btn" data-action="pin" title="${c.pinned ? 'Unpin' : 'Pin'}">
-          <svg viewBox="0 0 24 24" width="13" height="13"><path d="M12 2l1.5 5.5L19 9l-4 3.5L16 18l-4-3-4 3 1-5.5L5 9l5.5-1.5L12 2z" stroke="currentColor" stroke-width="1.5" fill="${c.pinned ? 'currentColor' : 'none'}" stroke-linejoin="round"/></svg>
-        </button>
-        <button class="hist-action-btn" data-action="rename" title="Rename">
-          <svg viewBox="0 0 24 24" width="13" height="13"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/></svg>
-        </button>
-        <button class="hist-action-btn danger" data-action="delete" title="Delete">
-          <svg viewBox="0 0 24 24" width="13" height="13"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6h16z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-    </div>`;
-  }
-
-  function bindHistoryEvents() {
-    $$('.history-item').forEach(item => {
-      const id = item.dataset.id;
-      item.addEventListener('click', (e) => {
-        if (e.target.closest('.hist-action-btn') || e.target.closest('.rename-input')) return;
-        switchConversation(id);
-      });
-      item.querySelectorAll('.hist-action-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const action = btn.dataset.action;
-          if (action === 'pin') togglePin(id);
-          if (action === 'delete') {
-            if (!state.settings.confirmDelete || confirm('Delete this conversation? This cannot be undone.')) deleteConversation(id);
-          }
-          if (action === 'rename') startRename(item, id);
-        });
-      });
-    });
-  }
-
-  function startRename(item, id) {
-    const titleSpan = item.querySelector('.hist-title');
-    const current = state.conversations[id].title;
-    const input = document.createElement('input');
-    input.type = 'text'; input.className = 'rename-input'; input.value = current;
-    titleSpan.replaceWith(input);
-    input.focus(); input.select();
-    const commit = () => { renameConversation(id, input.value); };
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); commit(); }
-      if (e.key === 'Escape') { renderHistory(); }
-    });
-    input.addEventListener('blur', commit);
-  }
-
-  // ---------------------------------------------------------------
-  // RENDER: CHAT AREA
-  // ---------------------------------------------------------------
-  function renderChatEmpty() {
-    const shuffled = [...SUGGESTIONS];
-    chatBox.innerHTML = `
-      <div class="welcome-screen">
-        <div class="welcome-logo">
-          <svg viewBox="0 0 24 24" width="26" height="26"><path d="M3 17c2-3 4-3 6 0s4 3 6 0 4-3 6 0M3 11c2-3 4-3 6 0s4 3 6 0 4-3 6 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-        </div>
-        <div class="welcome-title">How can I help you today?</div>
-        <div class="welcome-sub">Ask anything — code, writing, analysis, brainstorming, or just a conversation. I can search the web, read files and images, and reason step by step.</div>
-        <div class="suggestion-grid">
-          ${shuffled.map(s => `<div class="suggestion-card" data-prompt="${escapeHtml(s.prompt)}">
-            <div class="s-title">${escapeHtml(s.title)}</div>
-            <div class="s-sub">${escapeHtml(s.sub)}</div>
-          </div>`).join('')}
-        </div>
-      </div>`;
-    $$('.suggestion-card').forEach(card => {
-      card.addEventListener('click', () => {
-        userInput.value = card.dataset.prompt;
-        autoGrow();
-        userInput.focus();
-      });
-    });
-  }
-
-  function renderActiveChat() {
-    const convo = getActiveConversation();
-    if (!convo || convo.messages.length === 0) {
-      renderChatEmpty();
-      chatTitle.textContent = convo ? convo.title : 'New conversation';
-      return;
-    }
-    chatTitle.textContent = convo.title;
-    chatBox.innerHTML = '';
-    convo.messages.forEach((msg, idx) => appendMessageToDOM(msg, idx, false));
-    scrollToBottom(true);
-  }
-
-  function buildAttachmentsHtml(attachments) {
-    if (!attachments || !attachments.length) return '';
-    return attachments.map(a => {
-      if (a.type === 'image') {
-        return `<img class="attached-image-bubble" src="${a.dataUrl}" alt="${escapeHtml(a.name)}">`;
-      }
-      return `<div class="attached-file-chip">
-        <svg viewBox="0 0 24 24" width="15" height="15"><path d="M14 3v4a1 1 0 001 1h4M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>
-        <span>${escapeHtml(a.name)}</span>
-      </div>`;
-    }).join('');
-  }
-
-  function appendMessageToDOM(msg, idx, animate = true) {
-    const row = document.createElement('div');
-    row.className = `message-row ${msg.role === 'user' ? 'user-row' : 'bot-row'}`;
-    row.dataset.idx = idx;
-    if (!animate) row.style.opacity = '1';
-
-    const avatar = msg.role === 'user'
-      ? `<div class="msg-avatar user">U</div>`
-      : `<div class="msg-avatar bot"><svg viewBox="0 0 24 24" width="15" height="15"><path d="M3 17c2-3 4-3 6 0s4 3 6 0 4-3 6 0" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg></div>`;
-
-    const bubbleClass = `message ${msg.role === 'user' ? 'msg-user' : 'msg-bot'} ${state.settings.compact ? 'compact' : ''}`;
-    const attachHtml = buildAttachmentsHtml(msg.attachments);
-    const bodyHtml = msg.role === 'user'
-      ? escapeHtml(msg.content).replace(/\n/g, '<br>')
-      : renderMarkdown(msg.content);
-    const sourcesHtml = msg.sources && msg.sources.length ? `<div class="web-sources">${msg.sources.map(s => `<a class="web-source-chip" href="${s.url}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="11" height="11"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>${escapeHtml(s.title)}</a>`).join('')}</div>` : '';
-
-    const actionsHtml = msg.role === 'user'
-      ? `<div class="message-actions">
-          <button class="msg-action-btn" data-action="edit" title="Edit"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/></svg></button>
-          <button class="msg-action-btn" data-action="copy" title="Copy"><svg viewBox="0 0 24 24" width="14" height="14"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M5 15V5a2 2 0 012-2h10" stroke="currentColor" stroke-width="1.7" fill="none"/></svg></button>
-        </div>`
-      : `<div class="message-actions">
-          <button class="msg-action-btn" data-action="copy" title="Copy"><svg viewBox="0 0 24 24" width="14" height="14"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M5 15V5a2 2 0 012-2h10" stroke="currentColor" stroke-width="1.7" fill="none"/></svg></button>
-          <button class="msg-action-btn" data-action="regenerate" title="Regenerate"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M21 12a9 9 0 11-2.6-6.4M21 4v5h-5" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-          <button class="msg-action-btn" data-action="like" title="Good response"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M7 11v9H4a1 1 0 01-1-1v-7a1 1 0 011-1h3zm0 0l4-7a2 2 0 013 2l-1 4h5.5a1.5 1.5 0 011.4 2l-2 6a2 2 0 01-1.9 1.3H7" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg></button>
-          <button class="msg-action-btn" data-action="dislike" title="Poor response"><svg viewBox="0 0 24 24" width="14" height="14" style="transform:scaleY(-1)"><path d="M7 11v9H4a1 1 0 01-1-1v-7a1 1 0 011-1h3zm0 0l4-7a2 2 0 013 2l-1 4h5.5a1.5 1.5 0 011.4 2l-2 6a2 2 0 01-1.9 1.3H7" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg></button>
-        </div>`;
-
-    const metaHtml = msg.role === 'assistant'
-      ? `<div class="msg-meta-row"><span class="model-tag">${escapeHtml(MODEL_LABELS[msg.model] || 'Ocean AI')}</span><span>${timeAgo(msg.ts || Date.now())}</span></div>`
-      : '';
-
-    row.innerHTML = `
-      ${avatar}
-      <div class="message-col">
-        <div class="${bubbleClass}">${attachHtml}${bodyHtml}${sourcesHtml}</div>
-        ${metaHtml}
-        ${actionsHtml}
-      </div>`;
-
-    chatBox.appendChild(row);
-    bindMessageActions(row, msg, idx);
-    return row;
-  }
-
-  function bindMessageActions(row, msg, idx) {
-    row.querySelectorAll('.msg-action-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const action = btn.dataset.action;
-        if (action === 'copy') {
-          navigator.clipboard.writeText(msg.content).then(() => showToast('Copied to clipboard'));
-        } else if (action === 'edit') {
-          startEditMessage(row, msg, idx);
-        } else if (action === 'regenerate') {
-          regenerateResponse(idx);
-        } else if (action === 'like') {
-          btn.classList.toggle('liked');
-          row.querySelector('[data-action="dislike"]').classList.remove('disliked');
-          showToast('Thanks for the feedback');
-        } else if (action === 'dislike') {
-          btn.classList.toggle('disliked');
-          row.querySelector('[data-action="like"]').classList.remove('liked');
-          showToast('Thanks for the feedback');
-        }
-      });
-    });
-  }
-
-  function startEditMessage(row, msg, idx) {
-    const col = row.querySelector('.message-col');
-    const bubble = row.querySelector('.message');
-    const original = bubble.outerHTML;
-    const actions = row.querySelector('.message-actions');
-    actions.style.display = 'none';
-
-    const editWrap = document.createElement('div');
-    editWrap.innerHTML = `
-      <textarea class="edit-textarea">${escapeHtml(msg.content)}</textarea>
-      <div class="edit-actions">
-        <button class="edit-cancel">Cancel</button>
-        <button class="edit-save">Save &amp; submit</button>
-      </div>`;
-    bubble.replaceWith(editWrap);
-    const textarea = editWrap.querySelector('textarea');
-    textarea.focus();
-    textarea.style.height = textarea.scrollHeight + 'px';
-
-    editWrap.querySelector('.edit-cancel').addEventListener('click', () => {
-      editWrap.replaceWith(bubble);
-      actions.style.display = '';
-    });
-    editWrap.querySelector('.edit-save').addEventListener('click', () => {
-      const newText = textarea.value.trim();
-      if (!newText) return;
-      const convo = getActiveConversation();
-      convo.messages = convo.messages.slice(0, idx);
-      convo.messages.push({ role: 'user', content: newText, ts: Date.now(), attachments: msg.attachments || [] });
-      convo.updatedAt = Date.now();
-      saveConversations();
-      renderActiveChat();
-      generateResponse(convo);
-    });
-  }
-
-  function regenerateResponse(idx) {
-    const convo = getActiveConversation();
-    if (!convo) return;
-    convo.messages = convo.messages.slice(0, idx);
-    saveConversations();
-    renderActiveChat();
-    generateResponse(convo);
-  }
-
-  // ---------------------------------------------------------------
-  // SCROLL HANDLING
-  // ---------------------------------------------------------------
-  function scrollToBottom(force) {
-    const threshold = 120;
-    const atBottom = chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight < threshold;
-    if (force || atBottom) {
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-  }
-
-  chatBox.addEventListener('scroll', () => {
-    const distFromBottom = chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight;
-    $('#scrollBottomBtn').classList.toggle('visible', distFromBottom > 200);
-  });
-  $('#scrollBottomBtn').addEventListener('click', () => scrollToBottom(true));
-
-  // ---------------------------------------------------------------
-  // SEND / RECEIVE MESSAGES
-  // ---------------------------------------------------------------
-  function autoGrow() {
-    userInput.style.height = 'auto';
-    userInput.style.height = Math.min(userInput.scrollHeight, 200) + 'px';
-  }
-  userInput.addEventListener('input', () => {
-    autoGrow();
-    $('#charCounter').textContent = userInput.value.length;
-  });
-  userInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey && state.settings.enterToSend) {
-      e.preventDefault();
-      handleSend();
-    }
-  });
-
-  function handleAttachFiles(files) {
-    Array.from(files).forEach(file => {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          pendingAttachments.push({ type: 'image', name: file.name, dataUrl: e.target.result, size: file.size });
-          renderAttachPreviews();
-        };
-        reader.readAsDataURL(file);
-      } else {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          pendingAttachments.push({ type: 'file', name: file.name, text: (e.target.result || '').toString(), size: file.size });
-          renderAttachPreviews();
-        };
-        if (file.type === 'text/plain' || file.name.match(/\.(txt|md|csv|json|js|py|html|css|xml|yaml|yml|log)$/i)) {
-          reader.readAsText(file);
-        } else {
-          pendingAttachments.push({ type: 'file', name: file.name, text: '', size: file.size });
-          renderAttachPreviews();
-        }
-      }
-    });
-  }
-
-  function formatBytes(bytes) {
-    if (!bytes && bytes !== 0) return '';
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-  }
-
-  function renderAttachPreviews() {
-    const area = $('#attachPreviewArea');
-    area.innerHTML = pendingAttachments.map((a, i) => {
-      if (a.type === 'image') {
-        return `<div class="attach-item"><img class="attach-img-thumb" src="${a.dataUrl}"><button class="attach-remove" data-i="${i}">×</button></div>`;
-      }
-      return `<div class="attach-item"><div class="attach-file-thumb">
-        <svg viewBox="0 0 24 24" width="14" height="14"><path d="M14 3v4a1 1 0 001 1h4M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>
-        <span class="file-name">${escapeHtml(a.name)}</span><span class="file-size">${formatBytes(a.size)}</span></div><button class="attach-remove" data-i="${i}">×</button></div>`;
-    }).join('');
-    area.querySelectorAll('.attach-remove').forEach(btn => {
-      btn.addEventListener('click', () => {
-        pendingAttachments.splice(parseInt(btn.dataset.i), 1);
-        renderAttachPreviews();
-      });
-    });
-  }
-
-  // --- CUSTOM DROPZONE LOGIC ---
-  const chatDropzone = $('#chatDropzone');
-  let dragCounter = 0;
-
-  document.body.addEventListener('dragenter', (e) => {
-    e.preventDefault();
-    if (state.activeView !== 'dashboard') return;
-    dragCounter++;
-    if (dragCounter === 1) chatDropzone.classList.add('active');
-  });
-
-  document.body.addEventListener('dragleave', (e) => {
-    e.preventDefault();
-    if (state.activeView !== 'dashboard') return;
-    dragCounter--;
-    if (dragCounter === 0) chatDropzone.classList.remove('active');
-  });
-
-  document.body.addEventListener('dragover', (e) => {
-    e.preventDefault();
-  });
-
-  document.body.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dragCounter = 0;
-    if (chatDropzone) chatDropzone.classList.remove('active');
-    
-    if (state.activeView === 'dashboard' && e.dataTransfer.files.length) {
-      handleAttachFiles(e.dataTransfer.files);
-    }
-  });
-
-  // Paste image
-  userInput.addEventListener('paste', (e) => {
-    const items = e.clipboardData?.items || [];
-    for (const item of items) {
-      if (item.type.startsWith('image/')) {
-        const file = item.getAsFile();
-        if (file) handleAttachFiles([file]);
-      }
-    }
-  });
-
-  function handleSend() {
-    if (isGenerating) { stopGeneration(); return; }
-    const text = userInput.value.trim();
-    if (!text && pendingAttachments.length === 0) return;
-
-    let convo = getActiveConversation();
-    if (!convo) {
-      const id = createConversation();
-      convo = state.conversations[id];
-    }
-    if (convo.messages.length === 0 && state.settings.autoRename) {
-      convo.title = text ? (text.length > 48 ? text.slice(0, 48) + '…' : text) : 'New conversation';
-    }
-
-    const userMsg = { role: 'user', content: text, ts: Date.now(), attachments: pendingAttachments.slice() };
-    convo.messages.push(userMsg);
-    convo.updatedAt = Date.now();
-    saveConversations();
-    renderHistory();
-    chatTitle.textContent = convo.title;
-
-    if ($('.welcome-screen')) chatBox.innerHTML = '';
-    appendMessageToDOM(userMsg, convo.messages.length - 1);
-    scrollToBottom(true);
-
-    userInput.value = '';
-    autoGrow();
-    $('#charCounter').textContent = '0';
-    pendingAttachments = [];
-    renderAttachPreviews();
-
-    generateResponse(convo);
-  }
-
-  sendBtn.addEventListener('click', handleSend);
-
-  function stopGeneration() {
-    abortRequested = true;
-    isGenerating = false;
-    updateSendButton();
-  }
-
-  function updateSendButton() {
-    sendBtn.classList.toggle('stop-mode', isGenerating);
-    sendBtn.innerHTML = isGenerating
-      ? `<svg viewBox="0 0 24 24" width="14" height="14"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>`
-      : `<svg viewBox="0 0 24 24" width="18" height="18"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  }
-
-  async function generateResponse(convo) {
-    isGenerating = true;
-    abortRequested = false;
-    updateSendButton();
-
-    const typingId = 'typing-' + uid();
-    const typingRow = document.createElement('div');
-    typingRow.className = 'message-row bot-row';
-    typingRow.id = typingId;
-    typingRow.innerHTML = `
-      <div class="msg-avatar bot"><svg viewBox="0 0 24 24" width="15" height="15"><path d="M3 17c2-3 4-3 6 0s4 3 6 0 4-3 6 0" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg></div>
-      <div class="message-col">
-        <div class="message msg-bot"><div class="typing-indicator"><span></span><span></span><span></span></div></div>
-      </div>`;
-    chatBox.appendChild(typingRow);
-    scrollToBottom(true);
-
-    const lastUserMsg = [...convo.messages].reverse().find(m => m.role === 'user');
-    const imageAttachment = (lastUserMsg && lastUserMsg.attachments || []).find(a => a.type === 'image');
-    const project = convo.projectId ? state.projects[convo.projectId] : null;
-
-    const combinedInstructions = [
-      state.settings.customInstructions,
-      project ? `Project instructions: ${project.instructions}` : '',
-      state.settings.nickname ? `Address the user as "${state.settings.nickname}" when natural.` : '',
-      state.settings.tone && state.settings.tone !== 'balanced' ? `Preferred tone: ${state.settings.tone}.` : ''
-    ].filter(Boolean).join('\n');
-
-    try {
-      const headers = { 'Content-Type': 'application/json' };
-      if (state.settings.apiKey) headers['Authorization'] = `Bearer ${state.settings.apiKey}`;
-
-      const response = await fetch(state.settings.endpoint || '/chat', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          message: lastUserMsg ? lastUserMsg.content : '',
-          model: currentModel,
-          web_search: webSearchActive,
-          extended_thinking: thinkActive,
-          custom_instructions: combinedInstructions,
-          temperature: state.settings.temperature,
-          max_tokens: state.settings.maxTokens || null,
-          history: state.settings.includeHistory
-            ? convo.messages.slice(0, -1).map(m => ({ role: m.role, content: m.content }))
-            : [],
-          image: imageAttachment ? imageAttachment.dataUrl : null
-        })
-      });
-
-      if (!response.ok) throw new Error('Bad response: ' + response.status);
-      const data = await response.json();
-      document.getElementById(typingId)?.remove();
-      if (abortRequested) { isGenerating = false; updateSendButton(); return; }
-
-      const replyText = data.response || data.reply || data.message || '(empty response)';
-      const sources = data.sources || (webSearchActive ? [] : undefined);
-
-      const botMsg = { role: 'assistant', content: replyText, ts: Date.now(), model: currentModel, sources };
-      convo.messages.push(botMsg);
-      convo.updatedAt = Date.now();
-      saveConversations();
-      renderHistory();
-
-      if (state.settings.streamResponses) {
-        await streamMessage(botMsg, convo.messages.length - 1);
-      } else {
-        appendMessageToDOM(botMsg, convo.messages.length - 1);
-      }
-
-      if (state.settings.suggestFollowups) renderQuickSuggestions();
-
-    } catch (error) {
-      document.getElementById(typingId)?.remove();
-      const errMsg = { role: 'assistant', content: '⚠️ Could not reach the AI backend at `/chat`. Make sure your server is running and connected.', ts: Date.now(), model: currentModel };
-      convo.messages.push(errMsg);
-      saveConversations();
-      appendMessageToDOM(errMsg, convo.messages.length - 1);
-    }
-
-    isGenerating = false;
-    updateSendButton();
-    scrollToBottom();
-  }
-
-  function streamMessage(msg, idx) {
-    return new Promise((resolve) => {
-      const row = document.createElement('div');
-      row.className = 'message-row bot-row';
-      row.dataset.idx = idx;
-      const avatar = `<div class="msg-avatar bot"><svg viewBox="0 0 24 24" width="15" height="15"><path d="M3 17c2-3 4-3 6 0s4 3 6 0 4-3 6 0" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg></div>`;
-      row.innerHTML = `${avatar}<div class="message-col"><div class="message msg-bot ${state.settings.compact ? 'compact' : ''}"><span class="stream-target"></span><span class="stream-cursor"></span></div></div>`;
-      chatBox.appendChild(row);
-      const target = row.querySelector('.stream-target');
-      const cursor = row.querySelector('.stream-cursor');
-
-      const full = msg.content;
-      const chunkSize = Math.max(2, Math.round(full.length / 140));
-      let i = 0;
-
-      function tick() {
-        if (abortRequested) { finish(); return; }
-        i += chunkSize;
-        const partial = full.slice(0, i);
-        target.innerHTML = renderMarkdown(partial);
-        scrollToBottom();
-        if (i < full.length) {
-          requestAnimationFrame(() => setTimeout(tick, 8));
-        } else {
-          finish();
-        }
-      }
-      function finish() {
-        cursor.remove();
-        row.remove();
-        appendMessageToDOM(msg, idx);
-        scrollToBottom();
-        resolve();
-      }
-      tick();
-    });
-  }
-
-  function renderQuickSuggestions() {
-    const row = $('#quickSuggestRow');
-    const picks = [...FOLLOWUPS_BANK].sort(() => Math.random() - 0.5).slice(0, 3);
-    row.innerHTML = picks.map(p => `<button class="quick-chip">${escapeHtml(p)}</button>`).join('');
-    row.querySelectorAll('.quick-chip').forEach(btn => {
-      btn.addEventListener('click', () => {
-        userInput.value = btn.textContent;
-        autoGrow();
-        handleSend();
-        row.innerHTML = '';
-      });
-    });
-  }
-
-  // ---------------------------------------------------------------
-  // MODEL SELECTOR
-  // ---------------------------------------------------------------
-  const modelTrigger = $('#modelTrigger');
-  const modelDropdown = $('#modelDropdown');
-  modelTrigger.addEventListener('click', (e) => {
-    e.stopPropagation();
-    modelDropdown.classList.toggle('open');
-  });
-  document.addEventListener('click', () => modelDropdown.classList.remove('open'));
-  $$('.model-option').forEach(opt => {
-    opt.addEventListener('click', () => {
-      currentModel = opt.dataset.model;
-      $$('.model-option').forEach(o => o.classList.remove('active'));
-      opt.classList.add('active');
-      $('#modelTriggerLabel').textContent = MODEL_LABELS[currentModel];
-      const dot = modelTrigger.querySelector('.model-dot');
-      dot.className = 'model-dot ' + (opt.querySelector('.model-dot').classList[1] || '');
-      modelDropdown.classList.remove('open');
-    });
-  });
-
-  // ---------------------------------------------------------------
-  // TOOLBAR TOGGLES
-  // ---------------------------------------------------------------
-  function wireToggle(id, onChange) {
-    const btn = $(id);
-    btn.addEventListener('click', () => {
-      const active = btn.dataset.active === 'true';
-      btn.dataset.active = (!active).toString();
-      onChange(!active);
-    });
-  }
-  wireToggle('#webSearchToggle', (v) => { webSearchActive = v; showToast(v ? 'Web search enabled' : 'Web search disabled', v ? '🌐' : ''); });
-  wireToggle('#thinkToggle', (v) => { thinkActive = v; showToast(v ? 'Extended thinking enabled' : 'Extended thinking disabled', v ? '🧠' : ''); });
-  wireToggle('#canvasToggle', (v) => { canvasActive = v; showToast(v ? 'Canvas mode enabled' : 'Canvas mode disabled', v ? '🖼️' : ''); });
-
-  $('#attachBtn').addEventListener('click', () => $('#fileUpload').click());
-  $('#fileUpload').addEventListener('change', (e) => {
-    handleAttachFiles(e.target.files);
-    e.target.value = '';
-  });
-
-  function setupSpeech() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
-    recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'vi-VN';
-    recognition.onresult = (e) => {
-      let transcript = '';
-      for (let i = 0; i < e.results.length; i++) transcript += e.results[i][0].transcript;
-      userInput.value = transcript;
-      autoGrow();
-    };
-    recognition.onend = () => {
-      isRecording = false;
-      $('#micBtn').classList.remove('recording');
-    };
-  }
-  setupSpeech();
-
-  $('#micBtn').addEventListener('click', () => {
-    if (!recognition) { showToast('Voice input not supported in this browser'); return; }
-    if (isRecording) {
-      recognition.stop();
-      isRecording = false;
-      $('#micBtn').classList.remove('recording');
-    } else {
-      try {
-        recognition.start();
-        isRecording = true;
-        $('#micBtn').classList.add('recording');
-        showToast('Listening...', '🎤');
-      } catch (err) { }
-    }
-  });
-
-  // ---------------------------------------------------------------
-  // SIDEBAR CONTROLS
-  // ---------------------------------------------------------------
-  function collapseSidebar(collapsed) {
-    sidebar.classList.toggle('collapsed', collapsed);
-    $('#expandBtn').classList.toggle('visible', collapsed);
-    state.settings.sidebarCollapsed = collapsed;
-    saveSettings();
-  }
-  $('#collapseBtn').addEventListener('click', () => collapseSidebar(true));
-  $('#expandBtn').addEventListener('click', () => collapseSidebar(false));
-  $('#mobileSidebarBtn').addEventListener('click', () => collapseSidebar(!sidebar.classList.contains('collapsed')));
-
-  $('#newChatBtn').addEventListener('click', () => {
-    state.activeId = null;
-    saveConversations();
-    renderHistory();
-    setActiveView('dashboard');
-    renderChatEmpty();
-    chatTitle.textContent = 'New conversation';
-    $('#quickSuggestRow').innerHTML = '';
-    userInput.focus();
-    if (window.innerWidth <= 880) collapseSidebar(true);
-  });
-
-  $('#searchInput').addEventListener('input', (e) => renderHistory(e.target.value));
-
-  $('#clearAllBtn').addEventListener('click', () => {
-    if (Object.keys(state.conversations).length === 0) return;
-    if (confirm('Clear all conversation history? This cannot be undone.')) {
-      state.conversations = {};
-      state.activeId = null;
-      saveConversations();
-      renderHistory();
-      renderChatEmpty();
-    }
-  });
-
-  // ---------------------------------------------------------------
-  // SETTINGS MODAL
-  // ---------------------------------------------------------------
-  const settingsModal = $('#settingsModal');
-  $('#settingsBtn').addEventListener('click', openSettings);
-  $('#closeSettingsBtn').addEventListener('click', () => settingsModal.classList.remove('open'));
-  settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.classList.remove('open'); });
-
-  function openSettings(tabName) {
-    settingsModal.classList.add('open');
-    syncSettingsForm();
-    if (tabName) {
-      $$('.settings-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
-      $$('.settings-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === tabName));
-    }
-  }
-
-  $$('.settings-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      $$('.settings-tab').forEach(t => t.classList.remove('active'));
-      $$('.settings-panel').forEach(p => p.classList.remove('active'));
-      tab.classList.add('active');
-      $(`.settings-panel[data-panel="${tab.dataset.tab}"]`).classList.add('active');
-    });
-  });
-
-  const STREAM_SPEED_LABELS = { 1: 'Very slow', 2: 'Slow', 3: 'Normal', 4: 'Fast', 5: 'Instant' };
-
-  function syncSettingsForm() {
-    const s = state.settings;
-    $$('.swatch').forEach(sw => sw.classList.toggle('active', sw.dataset.theme === s.theme));
-    $$('#accentRow .accent-dot[data-accent]').forEach(d => d.classList.toggle('active', d.dataset.accent.toLowerCase() === s.accent.toLowerCase()));
-    $('#customAccentInput').value = s.accent;
-    $('#autoThemeToggle').checked = s.autoTheme;
-    $('#fontSizeRange').value = s.fontSize;
-    $('#fontSizeValue').textContent = s.fontSize + 'px';
-    $('#radiusRange').value = s.radius;
-    $('#radiusValue').textContent = s.radius + 'px';
-    $('#fontFamilySelect').value = s.fontFamily;
-    $('#bgUrl').value = s.bgUrl;
-    $('#bgOpacity').value = s.bgOpacity;
-    $('#bgOpacityValue').textContent = Math.round(s.bgOpacity * 100) + '%';
-    $('#compactToggle').checked = s.compact;
-    $('#reduceMotionToggle').checked = s.reduceMotion;
-    $('#showAvatarsToggle').checked = s.showAvatars;
-
-    $('#customInstructions').value = s.customInstructions;
-    $('#nicknameInput').value = s.nickname;
-    $('#toneSelect').value = s.tone;
-    $('#enterToSendToggle').checked = s.enterToSend;
-    $('#suggestToggle').checked = s.suggestFollowups;
-    $('#streamToggle').checked = s.streamResponses;
-    $('#streamSpeedRange').value = s.streamSpeed;
-    $('#streamSpeedValue').textContent = STREAM_SPEED_LABELS[s.streamSpeed] || 'Normal';
-    $('#autoRenameToggle').checked = s.autoRename;
-    $('#confirmDeleteToggle').checked = s.confirmDelete;
-    $('#spellcheckToggle').checked = s.spellcheck;
-    userInput.spellcheck = s.spellcheck;
-
-    $('#defaultModelSelect').value = s.defaultModel;
-    $('#temperatureRange').value = s.temperature;
-    $('#temperatureValue').textContent = s.temperature;
-    $('#maxTokensRange').value = s.maxTokens;
-    $('#maxTokensValue').textContent = s.maxTokens === 0 ? 'No limit' : s.maxTokens;
-    $('#defaultWebSearchToggle').checked = s.defaultWebSearch;
-    $('#defaultThinkingToggle').checked = s.defaultThinking;
-    $('#endpointInput').value = s.endpoint;
-    $('#apiKeyInput').value = s.apiKey;
-
-    $('#saveLocallyToggle').checked = s.saveLocally;
-    $('#includeHistoryToggle').checked = s.includeHistory;
-    $('#analyticsToggle').checked = s.analytics;
-    $('#maskAttachmentsToggle').checked = s.maskAttachments;
-    $('#autoDeleteSelect').value = String(s.autoDeleteDays);
-
-    updateStorageMeta();
-  }
-
-  function applyTheme() {
-    const s = state.settings;
-    document.body.className = s.theme === 'dark' ? '' : `theme-${s.theme}`;
-    document.documentElement.style.setProperty('--accent', s.accent);
-    document.documentElement.style.setProperty('--accent-rgb', hexToRgb(s.accent));
-    document.documentElement.style.setProperty('--font-size-chat', s.fontSize + 'px');
-    document.documentElement.style.setProperty('--radius-lg', s.radius + 'px');
-    document.documentElement.style.setProperty('--bg-image', s.bgUrl ? `url('${s.bgUrl}')` : 'none');
-    document.documentElement.style.setProperty('--bg-opacity', s.bgOpacity);
-    document.body.style.fontFamily = s.fontFamily;
-    document.body.classList.toggle('reduce-motion', !!s.reduceMotion);
-    document.body.classList.toggle('hide-avatars', !s.showAvatars);
-    updateThemeIcon();
-  }
-
-  function hexToRgb(hex) {
-    const m = hex.replace('#', '');
-    const bigint = parseInt(m, 16);
-    return `${(bigint >> 16) & 255}, ${(bigint >> 8) & 255}, ${bigint & 255}`;
-  }
-
-  function updateThemeIcon() {
-    const icon = $('#themeIcon');
-    const isLight = state.settings.theme === 'light';
-    icon.innerHTML = isLight
-      ? `<circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>`
-      : `<path d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.4 5.4 0 01-7.54-7.54A9 9 0 0012 3z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/>`;
-  }
-
-  function applySystemTheme() {
-    if (!state.settings.autoTheme) return;
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    state.settings.theme = prefersDark ? 'dark' : 'light';
-    applyTheme();
-  }
-  if (window.matchMedia) {
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applySystemTheme);
-  }
-
-  // --- Appearance ---
-  $$('.swatch').forEach(swatch => {
-    swatch.addEventListener('click', () => {
-      state.settings.theme = swatch.dataset.theme;
-      state.settings.autoTheme = false;
-      $('#autoThemeToggle').checked = false;
-      $$('.swatch').forEach(s => s.classList.remove('active'));
-      swatch.classList.add('active');
-      applyTheme(); saveSettings();
-    });
-  });
-  $('#autoThemeToggle').addEventListener('change', (e) => {
-    state.settings.autoTheme = e.target.checked;
-    saveSettings();
-    if (e.target.checked) applySystemTheme();
-  });
-  $$('#accentRow .accent-dot[data-accent]').forEach(dot => {
-    dot.addEventListener('click', () => {
-      state.settings.accent = dot.dataset.accent;
-      $$('#accentRow .accent-dot').forEach(d => d.classList.remove('active'));
-      dot.classList.add('active');
-      applyTheme(); saveSettings();
-    });
-  });
-  $('#customAccentInput').addEventListener('input', (e) => {
-    state.settings.accent = e.target.value;
-    $$('#accentRow .accent-dot[data-accent]').forEach(d => d.classList.remove('active'));
-    applyTheme(); saveSettings();
-  });
-  $('#fontSizeRange').addEventListener('input', (e) => { state.settings.fontSize = +e.target.value; $('#fontSizeValue').textContent = e.target.value + 'px'; applyTheme(); saveSettings(); });
-  $('#radiusRange').addEventListener('input', (e) => { state.settings.radius = +e.target.value; $('#radiusValue').textContent = e.target.value + 'px'; applyTheme(); saveSettings(); });
-  $('#fontFamilySelect').addEventListener('change', (e) => { state.settings.fontFamily = e.target.value; applyTheme(); saveSettings(); });
-  $('#bgUrl').addEventListener('change', (e) => { state.settings.bgUrl = e.target.value; applyTheme(); saveSettings(); });
-  $('#bgOpacity').addEventListener('input', (e) => { state.settings.bgOpacity = +e.target.value; $('#bgOpacityValue').textContent = Math.round(e.target.value * 100) + '%'; applyTheme(); saveSettings(); });
-  $('#compactToggle').addEventListener('change', (e) => { state.settings.compact = e.target.checked; saveSettings(); renderActiveChat(); });
-  $('#reduceMotionToggle').addEventListener('change', (e) => { state.settings.reduceMotion = e.target.checked; applyTheme(); saveSettings(); });
-  $('#showAvatarsToggle').addEventListener('change', (e) => { state.settings.showAvatars = e.target.checked; applyTheme(); saveSettings(); });
-  $('#resetAppearanceBtn').addEventListener('click', () => {
-    Object.assign(state.settings, {
-      theme: 'dark', autoTheme: false, accent: '#3b82f6', fontSize: 15, radius: 18,
-      fontFamily: "'Plus Jakarta Sans', 'Inter', 'Segoe UI', sans-serif", bgUrl: '', bgOpacity: 0.92,
-      compact: false, reduceMotion: false, showAvatars: true
-    });
-    applyTheme(); saveSettings(); syncSettingsForm();
-    showToast('Appearance reset to defaults');
-  });
-
-  $('#themeToggleBtn').addEventListener('click', () => {
-    state.settings.theme = state.settings.theme === 'light' ? 'dark' : 'light';
-    state.settings.autoTheme = false;
-    applyTheme(); saveSettings();
-  });
-
-  // --- Behavior ---
-  $('#customInstructions').addEventListener('change', (e) => { state.settings.customInstructions = e.target.value; saveSettings(); });
-  $('#nicknameInput').addEventListener('change', (e) => { state.settings.nickname = e.target.value; saveSettings(); });
-  $('#toneSelect').addEventListener('change', (e) => { state.settings.tone = e.target.value; saveSettings(); });
-  $('#enterToSendToggle').addEventListener('change', (e) => { state.settings.enterToSend = e.target.checked; saveSettings(); });
-  $('#suggestToggle').addEventListener('change', (e) => { state.settings.suggestFollowups = e.target.checked; saveSettings(); });
-  $('#streamToggle').addEventListener('change', (e) => { state.settings.streamResponses = e.target.checked; saveSettings(); });
-  $('#streamSpeedRange').addEventListener('input', (e) => { state.settings.streamSpeed = +e.target.value; $('#streamSpeedValue').textContent = STREAM_SPEED_LABELS[e.target.value]; saveSettings(); });
-  $('#autoRenameToggle').addEventListener('change', (e) => { state.settings.autoRename = e.target.checked; saveSettings(); });
-  $('#confirmDeleteToggle').addEventListener('change', (e) => { state.settings.confirmDelete = e.target.checked; saveSettings(); });
-  $('#spellcheckToggle').addEventListener('change', (e) => { state.settings.spellcheck = e.target.checked; userInput.spellcheck = e.target.checked; saveSettings(); });
-
-  // --- Models & API ---
-  $('#defaultModelSelect').addEventListener('change', (e) => {
-    state.settings.defaultModel = e.target.value; saveSettings();
-    currentModel = e.target.value;
-    $('#modelTriggerLabel').textContent = MODEL_LABELS[currentModel];
-    $$('.model-option').forEach(o => o.classList.toggle('active', o.dataset.model === currentModel));
-  });
-  $('#temperatureRange').addEventListener('input', (e) => { state.settings.temperature = +e.target.value; $('#temperatureValue').textContent = e.target.value; saveSettings(); });
-  $('#maxTokensRange').addEventListener('input', (e) => {
-    state.settings.maxTokens = +e.target.value;
-    $('#maxTokensValue').textContent = e.target.value == 0 ? 'No limit' : e.target.value;
-    saveSettings();
-  });
-  $('#defaultWebSearchToggle').addEventListener('change', (e) => { state.settings.defaultWebSearch = e.target.checked; webSearchActive = e.target.checked; $('#webSearchToggle').dataset.active = String(webSearchActive); saveSettings(); });
-  $('#defaultThinkingToggle').addEventListener('change', (e) => { state.settings.defaultThinking = e.target.checked; thinkActive = e.target.checked; $('#thinkToggle').dataset.active = String(thinkActive); saveSettings(); });
-  $('#endpointInput').addEventListener('change', (e) => { state.settings.endpoint = e.target.value.trim() || '/chat'; saveSettings(); });
-  $('#apiKeyInput').addEventListener('change', (e) => { state.settings.apiKey = e.target.value; saveSettings(); });
-  $('#toggleApiKeyBtn').addEventListener('click', () => {
-    const input = $('#apiKeyInput');
-    const showing = input.type === 'text';
-    input.type = showing ? 'password' : 'text';
-    $('#toggleApiKeyBtn').textContent = showing ? 'Show' : 'Hide';
-  });
-  $('#testConnectionBtn').addEventListener('click', async () => {
-    const statusEl = $('#connectionStatus');
-    statusEl.textContent = 'Testing…'; statusEl.className = 'connection-status';
-    try {
-      const headers = { 'Content-Type': 'application/json' };
-      if (state.settings.apiKey) headers['Authorization'] = `Bearer ${state.settings.apiKey}`;
-      const res = await fetch(state.settings.endpoint || '/chat', {
-        method: 'POST', headers, body: JSON.stringify({ message: '__ping__', model: currentModel, ping: true })
-      });
-      if (res.ok || res.status === 400) {
-        statusEl.textContent = `Reachable (status ${res.status})`; statusEl.className = 'connection-status ok';
-      } else {
-        statusEl.textContent = `Responded with status ${res.status}`; statusEl.className = 'connection-status fail';
-      }
-    } catch (err) {
-      statusEl.textContent = 'Could not reach endpoint'; statusEl.className = 'connection-status fail';
-    }
-  });
-
-  // --- Privacy ---
-  $('#saveLocallyToggle').addEventListener('change', (e) => { state.settings.saveLocally = e.target.checked; saveSettings(); });
-  $('#includeHistoryToggle').addEventListener('change', (e) => { state.settings.includeHistory = e.target.checked; saveSettings(); });
-  $('#analyticsToggle').addEventListener('change', (e) => { state.settings.analytics = e.target.checked; saveSettings(); });
-  $('#maskAttachmentsToggle').addEventListener('change', (e) => { state.settings.maskAttachments = e.target.checked; saveSettings(); });
-  $('#autoDeleteSelect').addEventListener('change', (e) => { state.settings.autoDeleteDays = +e.target.value; saveSettings(); runAutoDelete(); });
-
-  function runAutoDelete() {
-    const days = state.settings.autoDeleteDays;
-    if (!days) return;
-    const cutoff = Date.now() - days * 86400000;
-    let changed = false;
-    Object.keys(state.conversations).forEach(id => {
-      if (state.conversations[id].updatedAt < cutoff && !state.conversations[id].pinned) {
-        delete state.conversations[id];
-        changed = true;
-      }
-    });
-    if (changed) { saveConversations(); renderHistory(); }
-  }
-
-  // --- Data controls ---
-  $('#exportAllBtn').addEventListener('click', () => {
-    const payload = { conversations: state.conversations, projects: state.projects, exportedAt: Date.now(), version: 2 };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    downloadBlob(blob, `ocean-ai-export-${new Date().toISOString().slice(0, 10)}.json`);
-    showToast('Exported all conversations');
-  });
-  $('#exportAllMdBtn').addEventListener('click', () => {
-    let bundle = `# Ocean AI conversation export\nExported ${new Date().toLocaleString()}\n\n`;
-    Object.values(state.conversations).sort((a, b) => b.updatedAt - a.updatedAt).forEach(c => {
-      bundle += `\n\n## ${c.title}\n\n`;
-      c.messages.forEach(m => { bundle += `**${m.role === 'user' ? 'You' : 'Ocean AI'}:**\n\n${m.content}\n\n---\n\n`; });
-    });
-    const blob = new Blob([bundle], { type: 'text/markdown' });
-    downloadBlob(blob, `ocean-ai-all-chats-${new Date().toISOString().slice(0, 10)}.md`);
-    showToast('Exported all chats as Markdown');
-  });
-
-  // --- Import flow: dropzone -> preview -> mode select -> progress -> commit ---
-  let pendingImportData = null;
-  const importDropzoneUI = $('#importDropzone');
-  const importFileInput = $('#importFile');
-  const importPreview = $('#importPreview');
-
-  importDropzoneUI.addEventListener('click', () => importFileInput.click());
-  importDropzoneUI.addEventListener('dragover', (e) => { e.preventDefault(); importDropzoneUI.classList.add('dragover'); });
-  importDropzoneUI.addEventListener('dragleave', () => importDropzoneUI.classList.remove('dragover'));
-  importDropzoneUI.addEventListener('drop', (e) => {
-    e.preventDefault();
-    importDropzoneUI.classList.remove('dragover');
-    if (e.dataTransfer.files.length) readImportFile(e.dataTransfer.files[0]);
-  });
-  importFileInput.addEventListener('change', (e) => {
-    if (e.target.files.length) readImportFile(e.target.files[0]);
-    e.target.value = '';
-  });
-
-  function readImportFile(file) {
-    if (!file.name.endsWith('.json')) { showToast('Please select a .json export file'); return; }
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try {
-        const parsed = JSON.parse(ev.target.result);
-        const convos = parsed.conversations || parsed;
-        if (!convos || typeof convos !== 'object' || Array.isArray(convos)) throw new Error('bad shape');
-        pendingImportData = { conversations: convos, projects: parsed.projects || {} };
-        showImportPreview(pendingImportData);
-      } catch (err) {
-        showToast('That file doesn\'t look like a valid Ocean AI export');
-      }
-    };
-    reader.readAsText(file);
-  }
-
-  function showImportPreview(data) {
-    const entries = Object.values(data.conversations);
-    const newCount = entries.filter(c => !state.conversations[c.id]).length;
-    const dupCount = entries.length - newCount;
-    $('#importSummary').textContent = `${entries.length} conversation${entries.length !== 1 ? 's' : ''} found · ${newCount} new, ${dupCount} already exist`;
-    $('#importList').innerHTML = entries.slice(0, 50).map(c => {
-      const isDup = !!state.conversations[c.id];
-      return `<div class="import-list-item">
-        <span>${escapeHtml(c.title || 'Untitled')} <span style="color:var(--text-tertiary)">(${(c.messages || []).length} msgs)</span></span>
-        <span class="il-badge ${isDup ? 'dup' : 'new'}">${isDup ? 'duplicate' : 'new'}</span>
-      </div>`;
-    }).join('') + (entries.length > 50 ? `<div class="import-list-item">…and ${entries.length - 50} more</div>` : '');
-    importPreview.style.display = 'block';
-    $('#importProgress').style.display = 'none';
-  }
-
-  $('#cancelImportBtn').addEventListener('click', () => {
-    pendingImportData = null;
-    importPreview.style.display = 'none';
-  });
-
-  $('#confirmImportBtn').addEventListener('click', () => {
-    if (!pendingImportData) return;
-    const mode = document.querySelector('input[name="importMode"]:checked').value;
-    const entries = Object.values(pendingImportData.conversations);
-    const progressWrap = $('#importProgress');
-    const fill = $('#importProgressFill');
-    const label = $('#importProgressLabel');
-    progressWrap.style.display = 'flex';
-    $('#confirmImportBtn').disabled = true;
-    $('#cancelImportBtn').disabled = true;
-
-    if (mode === 'replace') {
-      state.conversations = {};
-      state.projects = {};
-    }
-
-    let i = 0;
-    function step() {
-      if (i >= entries.length) {
-        Object.assign(state.projects, pendingImportData.projects);
-        saveConversations();
-        saveProjects();
-        renderHistory();
-        renderProjects();
-        label.textContent = `Imported ${entries.length} conversation${entries.length !== 1 ? 's' : ''}`;
-        showToast(`Imported ${entries.length} conversation${entries.length !== 1 ? 's' : ''}`, '📥');
-        setTimeout(() => {
-          importPreview.style.display = 'none';
-          progressWrap.style.display = 'none';
-          $('#confirmImportBtn').disabled = false;
-          $('#cancelImportBtn').disabled = false;
-          pendingImportData = null;
-        }, 900);
-        return;
-      }
-      const convo = entries[i];
-      const id = (mode === 'merge' && state.conversations[convo.id]) ? uid() : convo.id;
-      state.conversations[id] = Object.assign({}, convo, { id });
-      i++;
-      fill.style.width = Math.round((i / entries.length) * 100) + '%';
-      label.textContent = `Importing ${i} of ${entries.length}…`;
-      requestAnimationFrame(() => setTimeout(step, 12));
-    }
-    step();
-  });
-
-  $('#clearAllSettingsBtn').addEventListener('click', () => {
-    if (confirm('Delete ALL conversations permanently?')) {
-      state.conversations = {}; state.activeId = null;
-      saveConversations(); renderHistory(); renderChatEmpty();
-      showToast('All conversations deleted');
-    }
-  });
-  $('#resetSettingsBtn').addEventListener('click', () => {
-    if (!confirm('Reset every setting to its default value?')) return;
-    localStorage.removeItem(SETTINGS_KEY);
-    location.reload();
-  });
-
-  function downloadBlob(blob, filename) {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = filename;
-    document.body.appendChild(a); a.click(); a.remove();
-    URL.revokeObjectURL(url);
-  }
-
-  // ---------------------------------------------------------------
-  // SHARE / EXPORT
-  // ---------------------------------------------------------------
-  const shareModal = $('#shareModal');
-  $('#shareBtn').addEventListener('click', () => {
-    const convo = getActiveConversation();
-    if (!convo) { showToast('Start a conversation first'); return; }
-    $('#shareLink').value = `${location.origin}${location.pathname}#chat=${convo.id}`;
-    shareModal.classList.add('open');
-  });
-  $('#closeShareBtn').addEventListener('click', () => shareModal.classList.remove('open'));
-  shareModal.addEventListener('click', (e) => { if (e.target === shareModal) shareModal.classList.remove('open'); });
-  $('#copyShareLinkBtn').addEventListener('click', () => {
-    navigator.clipboard.writeText($('#shareLink').value).then(() => showToast('Link copied'));
-  });
-  $('#exportMdBtn').addEventListener('click', () => exportConversation('md'));
-  $('#exportTxtBtn').addEventListener('click', () => exportConversation('txt'));
-  $('#exportBtn').addEventListener('click', () => exportConversation('md'));
-
-  function exportConversation(format) {
-    const convo = getActiveConversation();
-    if (!convo) { showToast('No active conversation'); return; }
-    let content = '';
-    if (format === 'md') {
-      content = `# ${convo.title}\n\n`;
-      convo.messages.forEach(m => {
-        content += `**${m.role === 'user' ? 'You' : 'Ocean AI'}:**\n\n${m.content}\n\n---\n\n`;
-      });
-    } else {
-      content = `${convo.title}\n${'='.repeat(convo.title.length)}\n\n`;
-      convo.messages.forEach(m => {
-        content += `${m.role === 'user' ? 'You' : 'Ocean AI'}: ${m.content}\n\n`;
-      });
-    }
-    const blob = new Blob([content], { type: 'text/plain' });
-    downloadBlob(blob, `${convo.title.replace(/[^\w\- ]/g, '').slice(0, 40) || 'conversation'}.${format}`);
-    shareModal.classList.remove('open');
-  }
-
-  // ---------------------------------------------------------------
-  // NAV ITEMS (Dashboard / Explore models / Projects)
-  // ---------------------------------------------------------------
-  $$('.nav-menu .nav-item').forEach(item => {
-    item.addEventListener('click', () => {
-      setActiveView(item.dataset.view);
-      if (window.innerWidth <= 880) collapseSidebar(true);
-    });
-  });
-
-  const projectModal = $('#projectModal');
-  let selectedProjectColor = '#3b82f6';
-  $('#newProjectBtn').addEventListener('click', () => {
-    $('#projectNameInput').value = '';
-    $('#projectInstructionsInput').value = '';
-    selectedProjectColor = '#3b82f6';
-    $$('#projectColorRow .accent-dot').forEach((d, i) => d.classList.toggle('active', i === 0));
-    projectModal.classList.add('open');
-    $('#projectNameInput').focus();
-  });
-  $('#closeProjectBtn').addEventListener('click', () => projectModal.classList.remove('open'));
-  $('#cancelProjectBtn').addEventListener('click', () => projectModal.classList.remove('open'));
-  projectModal.addEventListener('click', (e) => { if (e.target === projectModal) projectModal.classList.remove('open'); });
-  $$('#projectColorRow .accent-dot').forEach(dot => {
-    dot.addEventListener('click', () => {
-      selectedProjectColor = dot.dataset.color;
-      $$('#projectColorRow .accent-dot').forEach(d => d.classList.remove('active'));
-      dot.classList.add('active');
-    });
-  });
-  $('#saveProjectBtn').addEventListener('click', () => {
-    const name = $('#projectNameInput').value.trim();
-    if (!name) { showToast('Give the project a name'); $('#projectNameInput').focus(); return; }
-    createProject(name, $('#projectInstructionsInput').value, selectedProjectColor);
-    projectModal.classList.remove('open');
-    showToast('Project created', '📁');
-  });
-
-  // ---------------------------------------------------------------
-  // CODE BLOCK COPY (delegated — covers chat messages + script library modal)
-  // ---------------------------------------------------------------
-  document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.copy-code-btn');
-    if (!btn) return;
-    const target = document.getElementById(btn.dataset.target);
-    if (!target) return;
-    navigator.clipboard.writeText(target.textContent).then(() => {
-      const original = btn.innerHTML;
-      btn.innerHTML = `<svg viewBox="0 0 24 24" width="13" height="13"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Copied`;
-      setTimeout(() => { btn.innerHTML = original; }, 1600);
-      showToast('Code copied to clipboard');
-    }).catch(() => showToast('Could not copy — select and copy manually'));
-  });
-
-  // ---------------------------------------------------------------
-  // KEYBOARD SHORTCUTS
-  // ---------------------------------------------------------------
-  document.addEventListener('keydown', (e) => {
-    const meta = e.ctrlKey || e.metaKey;
-    const typingInField = ['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName);
-
-    if (meta && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#searchInput').focus(); collapseSidebar(false); }
-    if (meta && e.shiftKey && e.key.toLowerCase() === 'o') { e.preventDefault(); $('#newChatBtn').click(); }
-    if (meta && e.key.toLowerCase() === 'b' && !typingInField) { e.preventDefault(); collapseSidebar(!sidebar.classList.contains('collapsed')); }
-    if (meta && e.key.toLowerCase() === 'j') { e.preventDefault(); $('#themeToggleBtn').click(); }
-    if (meta && e.key === ',') { e.preventDefault(); openSettings(); }
-    if (meta && e.key === 'Backspace' && isGenerating) { e.preventDefault(); stopGeneration(); }
-    if (e.key === 'Escape') {
-      settingsModal.classList.remove('open');
-      shareModal.classList.remove('open');
-      projectModal.classList.remove('open');
-      $('#scriptDetailModal').classList.remove('open');
-      modelDropdown.classList.remove('open');
-    }
-  });
-
-  // ---------------------------------------------------------------
-  // INIT
-  // ---------------------------------------------------------------
-  function init() {
-    loadState();
-    runAutoDelete();
-    currentModel = state.settings.defaultModel || 'ocean-pro';
-    webSearchActive = !!state.settings.defaultWebSearch;
-    thinkActive = !!state.settings.defaultThinking;
-    $('#webSearchToggle').dataset.active = String(webSearchActive);
-    $('#thinkToggle').dataset.active = String(thinkActive);
-    $('#modelTriggerLabel').textContent = MODEL_LABELS[currentModel];
-    $$('.model-option').forEach(o => o.classList.toggle('active', o.dataset.model === currentModel));
-    const activeDot = document.querySelector(`.model-option[data-model="${currentModel}"] .model-dot`);
-    if (activeDot) modelTrigger.querySelector('.model-dot').className = 'model-dot ' + (activeDot.classList[1] || '');
-    userInput.spellcheck = state.settings.spellcheck;
-
-    if (state.settings.autoTheme) applySystemTheme(); else applyTheme();
-    collapseSidebar(!!state.settings.sidebarCollapsed);
-
-    setActiveView('dashboard');
-    if (state.activeId && state.conversations[state.activeId]) {
-      renderActiveChat();
-    } else {
-      renderChatEmpty();
-    }
-    renderHistory();
-    renderProjects();
-    autoGrow();
-  }
-
-  init();
-})();
-
-</script>
+<script src="app.js"></script>
 </body>
 </html>

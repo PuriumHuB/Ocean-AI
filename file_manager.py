@@ -1,31 +1,34 @@
 import os
+import pathlib
 
 class FileManager:
-    WORKSPACE_DIR = os.path.join(os.path.dirname(__file__), 'workspace')
+    @staticmethod
+    def read_file(filepath: str) -> str:
+        path = pathlib.Path(filepath).resolve()
+        if not path.is_file():
+            return "ERR_FILE_NOT_FOUND"
+        
+        # Hỗ trợ mọi định dạng Encoding để đọc File code an toàn
+        encodings = ['utf-8', 'utf-8-sig', 'latin-1', 'cp1252']
+        for enc in encodings:
+            try:
+                with open(path, 'r', encoding=enc) as f:
+                    content = f.read()
+                    # Giới hạn dung lượng đọc để tránh sập RAM khi gặp file quá lớn
+                    return content[:50000] if len(content) > 50000 else content
+            except UnicodeDecodeError:
+                continue
+            except Exception as e:
+                return f"ERR_READ_FAILED: {e}"
+        return "ERR_UNSUPPORTED_ENCODING"
 
-    @classmethod
-    def ensure_workspace(cls):
-        os.makedirs(cls.WORKSPACE_DIR, exist_ok=True)
-
-    @classmethod
-    def read_file(cls, filename: str) -> str:
-        filepath = os.path.join(cls.WORKSPACE_DIR, filename)
-        if not os.path.exists(filepath):
-            return f"-- File '{filename}' không tồn tại."
+    @staticmethod
+    def write_file(filepath: str, content: str) -> str:
         try:
-            with open(filepath, 'r', encoding='utf-8') as f:
-                return f.read()
-        except Exception as e:
-            return f"-- Lỗi đọc file: {e}"
-
-    @classmethod
-    def write_file(cls, filename: str, content: str) -> str:
-        cls.ensure_workspace()
-        filepath = os.path.join(cls.WORKSPACE_DIR, filename)
-        try:
-            os.makedirs(os.path.dirname(filepath), exist_ok=True)
-            with open(filepath, 'w', encoding='utf-8') as f:
+            path = pathlib.Path(filepath).resolve()
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with open(path, 'w', encoding='utf-8') as f:
                 f.write(content)
-            return f"Đã lưu thành công vào {filename}"
+            return "SUCCESS_FILE_SAVED"
         except Exception as e:
-            return f"Lỗi ghi file: {e}"
+            return f"ERR_WRITE_FAILED: {e}"

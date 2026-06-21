@@ -1,78 +1,105 @@
 import os
-import base64
+import threading
+from typing import Dict, Any, Optional, List
 from openai import OpenAI
+import httpx
 
 class OceanAgent:
-    def __init__(self, api_key=None):
-        # ĐỊNH NGHĨA MODEL MAP CHUẨN FREE TRÊN OPENROUTER
-        self.model_map = {
-            "ocean-flash": "nvidia/nemotron-3-nano-30b-a3b:free", # Tốc độ cực cao (190 tps)
-            "ocean-pro": "openrouter/owl-alpha",                  # Logic đa dụng, thông minh
-            "ocean-thinking": "nvidia/nemotron-3-ultra-550b-a55b:free", # Chuyên gia suy luận 550B
-            "ocean-code": "qwen/qwen3-coder:free"                 # Top 1 Free Coding Model
+    def __init__(self, api_key: str = None) -> None:
+        self.model_map: Dict[str, str] = {
+            "ocean-flash": "google/gemini-2.5-flash:free",          # Xử lý đa năng, đọc file/URL siêu tốc
+            "ocean-pro": "meta-llama/llama-3.3-70b-instruct:free",  # Kiến trúc hệ thống và Debug
+            "ocean-thinking": "deepseek/deepseek-r1:free",          # Vượt bảo mật, tư duy logic sâu
+            "ocean-code": "google/gemma-2-27b-it:free"              # Viết code Luau chuẩn xác, không dùng Qwen
         }
-
-        # KHỞI TẠO CLIENT CHO OPENROUTER
-        self.client = OpenAI(
-            base_url="https://openrouter.ai/api/v1",
-            api_key=api_key or os.getenv("OPENROUTER_API_KEY")
+        
+        self.api_key: str = api_key or os.environ.get("OPENROUTER_API_KEY", "")
+        self.lock = threading.Lock()
+        
+        http_client = httpx.Client(
+            limits=httpx.Limits(max_keepalive_connections=200, max_connections=400),
+            transport=httpx.HTTPTransport(retries=0), 
+            timeout=httpx.Timeout(50.0, connect=5.0)  
         )
         
-        # Tải cấu hình Siêu Prompt từ file
+        self.client = OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=self.api_key,
+            http_client=http_client
+        )
+        self.sys_prompt: str = self._load_prompt("prompts/lua_expert.txt")
+
+    def _load_prompt(self, path: str) -> str:
         try:
-            with open("prompts/Ocean_AI.txt", "r", encoding="utf-8") as f:
-                self.sys_prompt = f.read()
+            with open(path, "r", encoding="utf-8") as f:
+                return f.read().strip()
         except Exception:
-            self.sys_prompt = "Bạn là Ocean AI - Chuyên gia cấp cao về Luau và Roblox Game Development."
+            return "ERR_PROMPT_MISSING"
 
-    def ask(self, user_input, model_type="ocean-flash", image_data=None):
-        # Fallback hỗ trợ cho các biến số cũ từ giao diện
-        mode_fallback = {
-            "standard": "ocean-flash",
-            "pro": "ocean-pro",
-            "thinking": "ocean-thinking",
-            "code": "ocean-code"
-        }
-        if model_type in mode_fallback:
-            model_type = mode_fallback[model_type]
-
-        # Lấy chính xác mã Model ID
-        model_id = self.model_map.get(model_type, "google/gemini-2.5-flash:free")
-        
-        content_list = []
-        
-        # Xử lý hình ảnh (Multimodal Vision)
-        if image_data and "," in image_data:
-            try:
+    def _prepare_image(self, image_data: str) -> Optional[Dict[str, Any]]:
+        try:
+            if "," in image_data:
                 header, encoded = image_data.split(",", 1)
                 mime_type = header.split(";")[0].split(":")[1] if "data:" in header else "image/jpeg"
+            else:
+                encoded = image_data
+                mime_type = "image/jpeg"
                 
-                content_list.append({
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:{mime_type};base64,{encoded}"
-                    }
-                })
-                user_input += "\n[Hệ thống: Hãy phân tích hình ảnh đính kèm phía trên để xử lý/debug mã nguồn]."
-            except Exception as img_err:
-                print(f"Lỗi xử lý hình ảnh: {img_err}")
+            return {
+                "type": "image_url",
+                "image_url": {"url": f"data:{mime_type};base64,{encoded}"}
+            }
+        except Exception:
+            return None
 
-        # Xử lý văn bản
-        content_list.append({
-            "type": "text",
-            "text": user_input
-        })
+    def ask(self, user_input: str, model_type: str = "ocean-flash", image_data: str = None, file_text: str = None, web_content: str = None) -> str:
+        with self.lock:
+            model_id: str = self.model_map.get(model_type, self.model_map["ocean-flash"])
+            content_list: List[Dict[str, Any]] = []
+            
+            # Tích hợp luồng Read Files
+            if file_text:
+                user_input = f"{user_input}\n\n[FILE_CONTENT_ANALYSIS]\n```\n{file_text}\n```"
+                
+            # Tích hợp luồng Read Web URL
+            if web_content:
+                user_input = f"{user_input}\n\n[WEB_URL_CONTENT]\n```\n{web_content}\n```"
+            
+            # Tích hợp luồng Vision Fallback
+            if image_data:
+                if "gemini" not in model_id.lower():
+                    model_id = self.model_map["ocean-flash"]
+                
+                img_dict = self._prepare_image(image_data)
+                if img_dict:
+                    content_list.append(img_dict)
+                    user_input = f"{user_input}\n[VISION_TASK_REQUESTED]"
 
-        messages = [
-            {"role": "system", "content": self.sys_prompt},
-            {"role": "user", "content": content_list}
-        ]
+            clean_input = user_input.strip()
+            if clean_input:
+                content_list.append({"type": "text", "text": clean_input})
+            elif image_data:
+                content_list.append({"type": "text", "text": "Execute visual analysis."})
 
-        try:
-            response = self.client.chat.completions.create(
-                model=model_id,
-                messages=messages
-            )
-            return response.choices[0].message.content
-        except Exception as e:
-            return f"❌ Lỗi kết nối OpenRouter ({model_type}): {str(e)}"
+            if not content_list:
+                return "ERR_EMPTY_PAYLOAD"
+
+            try:
+                response = self.client.chat.completions.create(
+                    model=model_id,
+                    messages=[
+                        {"role": "system", "content": self.sys_prompt},
+                        {"role": "user", "content": content_list}
+                    ],
+                    stream=False,
+                    temperature=0.2, # Hạ nhiệt độ xuống 0.2 để code cực kỳ chính xác và logic
+                    max_tokens=2500
+                )
+                if response.choices and response.choices[0].message.content:
+                    return response.choices[0].message.content
+                return "ERR_EMPTY_RESPONSE_FROM_UPSTREAM"
+            
+            except httpx.ReadTimeout:
+                return "ERR_RENDER_TIMEOUT: Model vượt quá 50s. Để đảm bảo kết nối ổn định, vui lòng chia nhỏ yêu cầu hoặc dùng mode Flash."
+            except Exception as e:
+                return f"ERR_UPSTREAM_FAILURE: {str(e)}"
