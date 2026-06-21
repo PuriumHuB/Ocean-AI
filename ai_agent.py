@@ -8,11 +8,11 @@ class OceanAgent:
     def __init__(self, api_key: str = None) -> None:
         # BẢN ĐỒ MODEL CHUẨN (Cập nhật mới nhất)
         self.model_map: Dict[str, str] = {
-            "ocean-flash": "google/gemini-2.5-flash:free",
-            "ocean-pro": "openai/gpt-4o-mini:free",
-            "ocean-thinking": "nvidia/llama-3.1-nemotron-70b-instruct:free",
-            "ocean-code": "google/gemma-2-27b-it:free",
-            "vision-core": "google/gemini-2.5-flash:free",
+            "ocean-flash": "google/gemma-4-26b-a4b-it:free",
+            "ocean-pro": "openai/gpt-oss-120b:free",
+            "ocean-thinking": "nvidia/nemotron-3-super-120b-a12b:free",
+            "ocean-code": "nvidia/nemotron-3-ultra-550b-a55b:free",
+            "vision-core": "google/gemma-4-31b-it:free",
             "rescue-core": "meta-llama/llama-3.3-70b-instruct:free"
         }
         
