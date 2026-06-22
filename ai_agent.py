@@ -8,7 +8,7 @@ class OceanAgent:
     def __init__(self, api_key: str = None) -> None:
         # THE BEAUTIFUL GARDEN OF MODELS (Based on your top-tier list)
         self.model_map: Dict[str, str] = {
-            "flash": "nex-agi/nex-n2-pro:free",                    # Fast & elegant (Top 3)
+            "flash": "openai/gpt-oss-20b:free",                    # Fast & elegant (Top 3)
             "pro": "openai/gpt-oss-120b:free",                    # Deep understanding (Top 5)
             "thinking": "nvidia/nemotron-3-super-120b-a12b:free", # Thoughtful logic (Top 4)
             "code": "nvidia/nemotron-3-ultra-550b-a55b:free",     # The absolute best creator (Top 1)
