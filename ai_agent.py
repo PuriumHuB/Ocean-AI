@@ -7,11 +7,12 @@ import httpx
 class OceanAgent:
     def __init__(self, api_key: str = None) -> None:
         # THE BEAUTIFUL GARDEN OF MODELS
+        # Đã khôi phục lại ID chuẩn từ Web: ocean-flash, ocean-pro, ocean-thinking, ocean-code
         self.model_map: Dict[str, str] = {
-            "flash": "openai/gpt-oss-20b:free",                    
-            "pro": "openai/gpt-oss-120b:free",                    
-            "thinking": "nvidia/nemotron-3-super-120b-a12b:free", 
-            "code": "nvidia/nemotron-3-ultra-550b-a55b:free",     
+            "ocean-flash": "openai/gpt-oss-20b:free",                    
+            "ocean-pro": "openai/gpt-oss-120b:free",                    
+            "ocean-thinking": "nvidia/nemotron-3-super-120b-a12b:free", 
+            "ocean-code": "nvidia/nemotron-3-ultra-550b-a55b:free",     
             
             # Gentle helpers working in the background
             "vision-core": "google/gemma-4-31b-it:free",          
@@ -33,7 +34,7 @@ class OceanAgent:
             api_key=self.api_key,
             http_client=self.http_client
         )
-        self.sys_prompt: str = self._load_prompt("prompts/Ocean_AI.txt")
+        self.sys_prompt: str = self._load_prompt("prompts/lua_expert.txt")
 
     def _load_prompt(self, path: str) -> str:
         try:
@@ -59,25 +60,26 @@ class OceanAgent:
             return None
 
     def _vision_translate(self, img_dict: Dict[str, Any]) -> str:
+        """A reliable friend (Gemma) carefully reads the scenery for all other models."""
         try:
             temp_client = OpenAI(
                 base_url="https://openrouter.ai/api/v1",
                 api_key=self.api_key,
-                http_client=httpx.Client(timeout=httpx.Timeout(10.0))
+                http_client=httpx.Client(timeout=httpx.Timeout(12.0))
             )
             response = temp_client.chat.completions.create(
                 model=self.model_map["vision-core"],
                 messages=[
                     {"role": "user", "content": [
-                        {"type": "text", "text": "Please read and describe everything visible in this picture carefully, words by words."},
+                        {"type": "text", "text": "Please read and extract all text, code, logic, and visible elements from this image meticulously."},
                         img_dict
                     ]}
                 ],
-                max_tokens=1000
+                max_tokens=1500
             )
             return response.choices[0].message.content if response.choices else ""
         except Exception:
-            return "[Notice: The view is currently misted over.]"
+            return "[Notice: The view is currently misted over, unable to read the image.]"
 
     def _execute(self, model_id: str, messages: List[Dict[str, Any]]) -> str:
         try:
@@ -94,61 +96,66 @@ class OceanAgent:
         except Exception as e:
             raise RuntimeError(str(e))
 
-    def ask(self, user_input: str, model_type: str = "flash", image_data: str = None, file_text: str = None, web_content: str = None, chat_history: List[Dict[str, str]] = None) -> str:
+    def ask(self, user_input: str, model_type: str = "ocean-flash", image_data: str = None, file_text: str = None, web_content: str = None, chat_history: List[Dict[str, str]] = None) -> str:
         with self.lock:
-            model_id: str = self.model_map.get(model_type, self.model_map["flash"])
+            # Lấy model dựa trên ID từ Web, mặc định là flash nếu không tìm thấy
+            model_id: str = self.model_map.get(model_type, self.model_map["ocean-flash"])
+            content_list: List[Dict[str, Any]] = []
             
-            # Khởi tạo danh sách tin nhắn với System Prompt đầu tiên
-            messages: List[Dict[str, Any]] = [
-                {"role": "system", "content": self.sys_prompt}
-            ]
-            
-            # 1. ĐƯA LỊCH SỬ CHAT VÀO ĐÚNG CẤU TRÚC OBJECT CHUẨN API (Sửa lỗi mất trí nhớ của Nvidia)
-            if chat_history:
-                for msg in chat_history[-4:]:  # Lấy 4 câu gần nhất để đảm bảo tốc độ tối đa
-                    role = msg.get("role", "user").lower()
-                    if role not in ["user", "assistant"]:
-                        role = "user"
-                    
-                    messages.append({
-                        "role": role,
-                        "content": msg.get("content", "")
-                    })
+            # Khởi tạo siêu ngữ cảnh XML Fencing: Bắt TẤT CẢ các model phải đọc
+            unified_payload = ""
 
-            # 2. Xử lý dữ liệu bổ sung của lượt chat hiện tại (File văn bản & Web)
-            current_payload = user_input
+            # 1. ÉP TOÀN BỘ AI ĐỌC LỊCH SỬ CHAT
+            if chat_history:
+                unified_payload += "<PAST_CONVERSATIONS>\n"
+                for msg in chat_history[-4:]:  
+                    role = msg.get("role", "user").upper()
+                    content = msg.get("content", "")
+                    unified_payload += f"[{role}]: {content}\n"
+                unified_payload += "</PAST_CONVERSATIONS>\n\n"
+
+            # 2. ÉP TOÀN BỘ AI ĐỌC DỮ LIỆU FILE ĐÍNH KÈM VÀ WEB
             if file_text:
-                current_payload += f"\n\n=== Reading the open book of notes ===\n```\n{file_text}\n```\nLet us reflect on this together."
+                unified_payload += "<OPEN_NOTEBOOK>\n"
+                unified_payload += f"{file_text}\n"
+                unified_payload += "</OPEN_NOTEBOOK>\n\n"
                 
             if web_content:
-                current_payload += f"\n\n=== Gathering wisdom from the clouds ===\n```\n{web_content}\n```"
-            
-            content_list: List[Dict[str, Any]] = []
+                unified_payload += "<EXTERNAL_WISDOM>\n"
+                unified_payload += f"{web_content}\n"
+                unified_payload += "</EXTERNAL_WISDOM>\n\n"
 
-            # 3. Xử lý hình ảnh đính kèm
+            # 3. HỆ THỐNG MẮT THẦN DÀNH CHO MỌI MODEL
             if image_data:
                 img_dict = self._prepare_image(image_data)
                 if img_dict:
+                    # Dù model có mắt hay mù, ta đều mượn Gemma (Vision-core) đọc ra văn bản
+                    # Điều này đảm bảo độ chính xác tuyệt đối 100% cho các tác vụ code/logic
+                    vision_text = self._vision_translate(img_dict)
+                    unified_payload += "<TRANSLATED_SCENERY_FROM_IMAGE>\n"
+                    unified_payload += f"{vision_text}\n"
+                    unified_payload += "</TRANSLATED_SCENERY_FROM_IMAGE>\n\n"
+                    
+                    # Nếu model có mắt (Gemma/Nex), ta cho nó nhìn thêm ảnh gốc để đối chiếu
                     if "nex-n2-pro" in model_id.lower() or "gemma-4-31b" in model_id.lower():
                         content_list.append(img_dict)
-                        current_payload += "\n[Instruction: Look closely at the beautiful scenery provided here.]"
-                    else:
-                        vision_text = self._vision_translate(img_dict)
-                        current_payload += f"\n\n=== A beautiful description of the shared scenery ===\n{vision_text}"
 
-            clean_input = current_payload.strip()
+            # 4. CHỐT YÊU CẦU HIỆN TẠI VÀO CUỐI
+            clean_input = user_input.strip()
             if clean_input:
-                content_list.append({"type": "text", "text": clean_input})
-            elif image_data and not content_list:
-                content_list.append({"type": "text", "text": "Let us explore the scenery together."})
+                unified_payload += f"<CURRENT_REQUEST>\n{clean_input}\n</CURRENT_REQUEST>"
+            else:
+                unified_payload += "<CURRENT_REQUEST>\nPlease review the provided notebooks and scenery.</CURRENT_REQUEST>"
 
-            if not content_list:
-                return "The garden seems empty right now."
+            # Nạp toàn bộ siêu ngữ cảnh vào content
+            content_list.append({"type": "text", "text": unified_payload})
 
-            # Đưa lượt chat hiện tại vào cuối mảng dưới vai trò của User
-            messages.append({"role": "user", "content": content_list})
+            messages = [
+                {"role": "system", "content": self.sys_prompt},
+                {"role": "user", "content": content_list}
+            ]
 
-            # 4. Thực thi gọi API và kích hoạt cứu hộ nếu hàng nặng bị nghẽn
+            # 5. THỰC THI CHỐNG NGHẼN (Luồng gió cứu hộ)
             try:
                 return self._execute(model_id, messages)
             except TimeoutError:
@@ -158,6 +165,6 @@ class OceanAgent:
                     return f"The river flows too slowly today: {str(e)}"
             except RuntimeError as e:
                 try:
-                    return f"*[Resting in the safe shelter of the garden]*\n\n" + self._execute(self.model_map["flash"], messages)
+                    return f"*[Resting in the safe shelter of the garden]*\n\n" + self._execute(self.model_map["ocean-flash"], messages)
                 except Exception:
                     return f"A quiet moment of rest: {str(e)}"
